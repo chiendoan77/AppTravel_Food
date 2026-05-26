@@ -2,6 +2,7 @@ package com.example.apptravelfood.ui.screen.homescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.core.constant.AppConstant
 import com.example.apptravelfood.data.reponsitory.PlaceRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +17,8 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     fun searchPlaces(
-        query: String = "Chùa",
-        location: String = "Quy Nhon, Binh Dinh, Vietnam"
+        query: String = "Hòn khô",
+        location: String = "Quy Nhon, Binh Djinh, Vietnam"
     ) {
         viewModelScope.launch {
             _uiState.value = HomeUiState(isLoading = true)
@@ -26,7 +27,7 @@ class HomeViewModel(
                 val places = repository.sreachPlaces(
                     query = query,
                     location = location,
-                    apiKey = "API_KEY_CUA_BAN"
+                    apiKey = AppConstant.API_KEY
                 )
 
                 _uiState.value = HomeUiState(

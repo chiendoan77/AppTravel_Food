@@ -20,4 +20,5 @@ data class LocalResultsDto(
     val address: String?,
     val gps_coordinates: GpsCoordinatesDto?,
     val links: LinkDto?,
+    val thumbnail: String?
 )

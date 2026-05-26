@@ -7,7 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.apptravelfood.core.network.RetrofitClient
 import com.example.apptravelfood.data.reponsitory.PlaceRepository
-import com.example.apptravelfood.ui.screen.homescreen.HomeRoute
+import com.example.apptravelfood.ui.navgation.AppNav
 import com.example.apptravelfood.ui.screen.homescreen.HomeViewModel
 import com.example.apptravelfood.ui.screen.homescreen.HomeViewModelFactory
 
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 factory = factory
             )
 
-            HomeRoute(viewModel = homeViewModel)
+            AppNav(homeViewModel = homeViewModel)
         }
     }
 }

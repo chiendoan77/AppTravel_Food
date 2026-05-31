@@ -16,9 +16,10 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+//
     fun searchPlaces(
-        query: String = "Hòn khô",
-        location: String = "Quy Nhon, Binh Djinh, Vietnam"
+        query: String,
+        location: String
     ) {
         viewModelScope.launch {
             _uiState.value = HomeUiState(isLoading = true)

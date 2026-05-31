@@ -3,6 +3,7 @@ package com.example.apptravelfood.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
@@ -26,10 +27,10 @@ fun FloatingBottomBar(
         )
 
         NavigationBarItem(
-            selected = selectedRoute == AppRoute.MAP,
-            onClick = { onItemClick(AppRoute.MAP) },
-            icon = { Icon(Icons.Default.Map, null) },
-            label = { Text("Map") }
+            selected = selectedRoute == AppRoute.CHECKIN,
+            onClick = { onItemClick(AppRoute.CHECKIN) },
+            icon = { Icon(Icons.Default.AppRegistration, null) },
+            label = { Text("Checkin") }
         )
 
         NavigationBarItem(

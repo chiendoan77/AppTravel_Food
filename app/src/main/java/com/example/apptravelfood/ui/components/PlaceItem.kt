@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,12 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 
 @Composable
 fun PlaceItem(
     place: LocalResultsDto,
-    onClick: () -> Unit
+    foodStores: List<FoodStoreEntity>,
+    onClick: () -> Unit,
+    onAddFoodStoreClick: (LocalResultsDto) -> Unit,
+    onFoodStoreClick: (FoodStoreEntity) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -29,8 +34,6 @@ fun PlaceItem(
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
         Column {
-
-            // HEADER
             Row(
                 modifier = Modifier.padding(12.dp)
             ) {
@@ -76,63 +79,102 @@ fun PlaceItem(
             }
 
             HorizontalDivider()
-
-            // QUÁN ĂN GẦN
+            Button(
+                onClick = {
+                    onAddFoodStoreClick(place)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("＋ Thêm quán ăn gần địa điểm này")
+            }
             Column(
                 modifier = Modifier.padding(12.dp)
             ) {
-                Text(
-                    text = "Quán ăn gần đây",
-                    style = MaterialTheme.typography.titleSmall
-                )
+                Row {
+                    Icon(Icons.Default.Store, null)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Quán ăn gần đây",
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(5) {
-                        Card(
-                            modifier = Modifier
-                                .width(150.dp)
-                                .height(180.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            elevation = CardDefaults.cardElevation(3.dp)
-                        ) {
-                            Column {
-                                AsyncImage(
-                                    model = "https://picsum.photos/300/200",
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(80.dp),
-                                    contentScale = ContentScale.Crop
-                                )
-
-                                Column(
-                                    modifier = Modifier.padding(10.dp)
-                                ) {
-                                    Text(
-                                        text = "Quán demo",
-                                        style = MaterialTheme.typography.titleSmall
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    Text(
-                                        text = "Gần địa điểm này",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        maxLines = 2
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    Text("⭐ 4.5")
+                if (foodStores.isEmpty()) {
+                    Text(
+                        text = "Chưa có quán ăn nào được thêm",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                } else {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        items(foodStores) { store ->
+                            FoodStoreMiniCard(
+                                store = store,
+                                onClick = {
+                                    onFoodStoreClick(store)
                                 }
-                            }
+                            )
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun FoodStoreMiniCard(
+    store: FoodStoreEntity,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .width(170.dp)
+            .height(180.dp),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column {
+            AsyncImage(
+                model = store.imageUrl,
+                contentDescription = store.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(90.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Text(
+                    text = store.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = store.address ?: "Chưa có địa chỉ",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = store.description ?: "Xem menu món ăn",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
             }
         }
     }

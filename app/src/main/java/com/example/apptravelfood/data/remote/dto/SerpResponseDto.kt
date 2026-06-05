@@ -16,6 +16,7 @@ data class LocalResultsDto(
     val rating: Double?,
     val description: String?,
     val title: String,
+    val place_id: String,
     val type: String,
     val address: String?,
     val gps_coordinates: GpsCoordinatesDto?,

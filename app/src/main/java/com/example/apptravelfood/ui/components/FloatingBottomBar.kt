@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppRegistration
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
@@ -34,10 +35,10 @@ fun FloatingBottomBar(
         )
 
         NavigationBarItem(
-            selected = selectedRoute == AppRoute.SAVED,
-            onClick = { onItemClick(AppRoute.SAVED) },
-            icon = { Icon(Icons.Default.Favorite, null) },
-            label = { Text("Lưu") }
+            selected = selectedRoute == AppRoute.HISTORY,
+            onClick = { onItemClick(AppRoute.HISTORY) },
+            icon = { Icon(Icons.Default.History, null) },
+            label = { Text("Lịch sử") }
         )
 
         NavigationBarItem(

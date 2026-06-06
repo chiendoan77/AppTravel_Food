@@ -10,20 +10,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.compose.ui.platform.LocalContext
 import com.example.apptravelfood.core.untils.LocationHelper
 import com.example.apptravelfood.core.untils.getAddressFromLocation
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.AppSearchBar
-import com.example.apptravelfood.ui.components.FloatingBottomBar
 import com.example.apptravelfood.ui.components.PlaceItem
+import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.ui.navgation.AppRoute
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -34,10 +33,13 @@ fun HomeScreen(
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
     onPlaceClick: (LocalResultsDto) -> Unit,
-    onBottomClick: (String) -> Unit,
-    onLocationFound: (String?, String?, String?) -> Unit
+    onLocationFound: (String?, String?, String?) -> Unit,
+    onFoodStoreClick: (FoodStoreEntity) -> Unit,
+    onAddFoodStoreClick: (LocalResultsDto) -> Unit,
 ) {
     val context = LocalContext.current
+
+
     val getLocation = {
         LocationHelper(context).getCurrentLocation { lat, lng ->
             getAddressFromLocation(
@@ -45,35 +47,40 @@ fun HomeScreen(
                 lat,
                 lng
             ) { city, province, country ->
-                Log.d("HomeScreen", "City: $city, Province: $province, Country: $country")
+
+                Log.d(
+                    "HomeScreen",
+                    "City: $city, Province: $province, Country: $country"
+                )
+
                 onLocationFound(
                     city,
                     province,
                     country
                 )
-
             }
         }
     }
+
     val launcher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
 
             if (granted) {
-                getLocation()
                 Log.d("ABC", "Permission granted")
+                getLocation()
             } else {
                 Log.d("ABC", "Permission denied")
             }
         }
-
 
     LaunchedEffect(Unit) {
         val permissionCheck = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
+
         if (permissionCheck == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             Log.d("ABC", "Permission already granted")
             getLocation()
@@ -85,55 +92,59 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        bottomBar = {
-            FloatingBottomBar(
-                selectedRoute = AppRoute.HOME,
-                onItemClick = onBottomClick
-            )
-        }
-    ) { padding ->
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        AppSearchBar(
+            query = query,
+            onQueryChange = onQueryChange,
+            onSearch = onSearch
+        )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            AppSearchBar(
-                query = query,
-                onQueryChange = onQueryChange,
-                onSearch = onSearch
-            )
-
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+        when {
+            uiState.isLoading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
 
-                uiState.error != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Lỗi: ${uiState.error}")
-                    }
+            uiState.error != null -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Lỗi: ${uiState.error}")
                 }
+            }
 
-                else -> {
-                    LazyColumn {
-                        items(uiState.places) { place ->
-                            PlaceItem(
-                                place = place,
-                                onClick = {
-                                    onPlaceClick(place)
-                                }
-                            )
-                        }
+            uiState.places.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "Nhập địa điểm cần tìm")
+                }
+            }
+
+            else -> {
+                LazyColumn {
+                    items(uiState.places) { place ->
+                        val foodStores =
+                            uiState.foodStoresByPlace[place.place_id ?: ""]
+                                ?: emptyList()
+
+                        PlaceItem(
+                            place = place,
+                            foodStores = foodStores,
+                            onClick = {
+                                onPlaceClick(place)
+                            },
+                            onAddFoodStoreClick = onAddFoodStoreClick,
+                            onFoodStoreClick = onFoodStoreClick
+                        )
                     }
                 }
             }

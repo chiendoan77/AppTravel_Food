@@ -1,6 +1,5 @@
-package com.example.apptravelfood.data.reponsitory
+package com.example.apptravelfood.data.repository
 
-import com.example.apptravelfood.core.constant.AppConstant
 import com.example.apptravelfood.data.remote.api.APIinterface
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 

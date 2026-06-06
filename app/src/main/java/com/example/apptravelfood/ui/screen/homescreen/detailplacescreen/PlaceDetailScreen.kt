@@ -1,4 +1,4 @@
-package com.example.apptravelfood.ui.screen.detailscreen
+package com.example.apptravelfood.ui.screen.homescreen.detailplacescreen
 
 import android.content.Intent
 import android.net.Uri
@@ -15,11 +15,13 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +47,7 @@ fun PlaceDetailScreen(
                             val lng = place.gps_coordinates?.longitude
 
                             if (lat != null && lng != null) {
-                                val uri = Uri.parse("google.navigation:q=$lat,$lng")
+                                val uri = "google.navigation:q=$lat,$lng".toUri()
                                 val intent = Intent(Intent.ACTION_VIEW, uri).apply {
                                     setPackage("com.google.android.apps.maps")
                                 }
@@ -133,7 +135,7 @@ fun PlaceDetailScreen(
 
 @Composable
 fun DetailInfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     value: String
 ) {

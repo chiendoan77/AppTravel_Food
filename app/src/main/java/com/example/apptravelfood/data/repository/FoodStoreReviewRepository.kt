@@ -68,4 +68,11 @@ class FoodStoreReviewRepository(
     suspend fun getReviewCount(foodStoreId: Long): Int {
         return reviewDao.getReviewCount(foodStoreId)
     }
+    suspend fun getReviewById(reviewId: Long): FoodStoreReviewEntity? {
+        return reviewDao.getReviewById(reviewId)
+    }
+
+    suspend fun insertReviewReplace(review: FoodStoreReviewEntity): Long {
+        return reviewDao.insertReviewReplace(review)
+    }
 }

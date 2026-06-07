@@ -2,6 +2,7 @@ package com.example.apptravelfood.ui.screen.food.addfooditemscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.repository.FoodItemRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,7 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AddFoodItemViewModel(
-    private val foodItemRepository: FoodItemRepository
+    private val foodItemRepository: FoodItemRepository,
+    private val firebaseRepository: FirebaseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddFoodItemUiState())
@@ -62,26 +64,43 @@ class AddFoodItemViewModel(
                 _uiState.value = state.copy(isSaving = true, error = null)
 
                 if (state.isEditMode && state.foodItemId != null) {
-                    foodItemRepository.updateFoodItem(
-                        FoodItemEntity(
-                            foodItemId = state.foodItemId,
-                            foodStoreId = foodStoreId,
-                            name = state.name,
-                            description = state.description.ifBlank { null },
-                            price = priceValue,
-                            imageUrl = state.imageUrl.ifBlank { null }
-                        )
+
+                    val updateItem = FoodItemEntity(
+                        foodItemId = state.foodItemId,
+                        foodStoreId = foodStoreId,
+                        name = state.name,
+                        description = state.description.ifBlank { null },
+                        price = priceValue,
+                        imageUrl = state.imageUrl.ifBlank { null }
                     )
+
+                    foodItemRepository.updateFoodItem(updateItem)
+
+                    try {
+                        firebaseRepository.backupFoodItem(updateItem)
+                    } catch (_: Exception) {
+                    }
+
                 } else {
-                    foodItemRepository.addFoodItem(
-                        FoodItemEntity(
-                            foodStoreId = foodStoreId,
-                            name = state.name,
-                            description = state.description.ifBlank { null },
-                            price = priceValue,
-                            imageUrl = state.imageUrl.ifBlank { null }
-                        )
+
+                    val itemWithoutId = FoodItemEntity(
+                        foodStoreId = foodStoreId,
+                        name = state.name,
+                        description = state.description.ifBlank { null },
+                        price = priceValue,
+                        imageUrl = state.imageUrl.ifBlank { null }
                     )
+
+                    val newId = foodItemRepository.addFoodItem(itemWithoutId)
+
+                    val itemWithId = itemWithoutId.copy(
+                        foodItemId = newId
+                    )
+
+                    try {
+                        firebaseRepository.backupFoodItem(itemWithId)
+                    } catch (_: Exception) {
+                    }
                 }
 
                 _uiState.value = state.copy(
@@ -105,18 +124,23 @@ class AddFoodItemViewModel(
         val state = _uiState.value
         val foodItemId = state.foodItemId ?: return
 
+        val deleteItem = FoodItemEntity(
+            foodItemId = foodItemId,
+            foodStoreId = foodStoreId,
+            name = state.name,
+            description = state.description.ifBlank { null },
+            price = state.price.toDoubleOrNull(),
+            imageUrl = state.imageUrl.ifBlank { null }
+        )
+
         viewModelScope.launch {
             try {
-                foodItemRepository.deleteFoodItem(
-                    FoodItemEntity(
-                        foodItemId = foodItemId,
-                        foodStoreId = foodStoreId,
-                        name = state.name,
-                        description = state.description.ifBlank { null },
-                        price = state.price.toDoubleOrNull(),
-                        imageUrl = state.imageUrl.ifBlank { null }
-                    )
-                )
+                foodItemRepository.deleteFoodItem(deleteItem)
+
+                try {
+                    firebaseRepository.deleteFoodItem(foodItemId)
+                } catch (_: Exception) {
+                }
 
                 onDeleted()
 

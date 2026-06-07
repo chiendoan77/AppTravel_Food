@@ -57,4 +57,10 @@ interface FoodStoreReviewDao {
         WHERE foodStoreId = :foodStoreId
     """)
     suspend fun getReviewCount(foodStoreId: Long): Int
+
+    @Query("SELECT * FROM food_store_reviews WHERE reviewId = :reviewId LIMIT 1")
+    suspend fun getReviewById(reviewId: Long): FoodStoreReviewEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReviewReplace(review: FoodStoreReviewEntity): Long
 }

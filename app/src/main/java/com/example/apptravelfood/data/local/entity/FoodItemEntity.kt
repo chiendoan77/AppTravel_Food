@@ -23,12 +23,12 @@ data class FoodItemEntity(
     @PrimaryKey(autoGenerate = true)
     val foodItemId: Long = 0,
 
-    val foodStoreId: Long,
+    val foodStoreId: Long = 0,
 
-    val name: String,
-    val description: String?,
-    val price: Double?,
-    val imageUrl: String?,
+    val name: String = "",
+    val description: String? = null,
+    val price: Double? = null,
+    val imageUrl: String? = null,
 
     val createdAt: Long = System.currentTimeMillis()
 )

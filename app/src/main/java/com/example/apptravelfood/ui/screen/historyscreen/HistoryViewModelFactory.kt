@@ -1,4 +1,4 @@
-package com.example.apptravelfood.ui.screen.historycreen
+package com.example.apptravelfood.ui.screen.historyscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

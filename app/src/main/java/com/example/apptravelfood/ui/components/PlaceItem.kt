@@ -38,7 +38,7 @@ fun PlaceItem(
                 modifier = Modifier.padding(12.dp)
             ) {
                 AsyncImage(
-                    model = place.thumbnail,
+                    model = place.thumbnail_large,
                     contentDescription = place.title,
                     modifier = Modifier.size(100.dp),
                     contentScale = ContentScale.Crop

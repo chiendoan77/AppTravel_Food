@@ -23,11 +23,11 @@ data class CheckinEntity(
     @PrimaryKey(autoGenerate = true)
     val checkinId: Long = 0,
 
-    val userId: Long,
+    val userId: Long = 0,
 
-    val imageUrl: String?,
-    val pointEarned: Int,
-    val faceVerified: Boolean,
+    val imageUrl: String? = null,
+    val pointEarned: Int = 0,
+    val faceVerified: Boolean = false,
 
     val checkinTime: Long = System.currentTimeMillis()
 )

@@ -2,13 +2,14 @@ package com.example.apptravelfood.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.apptravelfood.data.local.entity.UserEntity
 
 @Dao
 interface UserDao {
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: UserEntity): Long
 
     @Update
@@ -31,4 +32,13 @@ interface UserDao {
 
     @Query("UPDATE users SET totalPoint = totalPoint + :point WHERE userId = :userId")
     suspend fun addPoint(userId: Long, point: Int)
+
+    @Query("SELECT * FROM users WHERE email = :email LIMIT 1")
+    suspend fun getUserByEmail(email: String): UserEntity?
+
+    @Query("UPDATE users SET biometricEnabled = :enabled WHERE userId = :userId")
+    suspend fun updateBiometricEnabled(
+        userId: Long,
+        enabled: Boolean
+    )
 }

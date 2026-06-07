@@ -3,13 +3,18 @@ package com.example.apptravelfood.ui.screen.food.addfoodstorescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.repository.FoodStoreRepository
 
 class AddFoodStoreViewModelFactory(
-    private val foodStoreRepository: FoodStoreRepository
+    private val foodStoreRepository: FoodStoreRepository,
+    private val firebaseRepository: FirebaseRepository
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AddFoodStoreViewModel(foodStoreRepository) as T
+        return AddFoodStoreViewModel(
+            foodStoreRepository = foodStoreRepository,
+            firebaseRepository = firebaseRepository
+        ) as T
     }
 }

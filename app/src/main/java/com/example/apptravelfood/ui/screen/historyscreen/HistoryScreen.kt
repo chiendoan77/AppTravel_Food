@@ -1,4 +1,4 @@
-package com.example.apptravelfood.ui.screen.historycreen
+package com.example.apptravelfood.ui.screen.historyscreen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

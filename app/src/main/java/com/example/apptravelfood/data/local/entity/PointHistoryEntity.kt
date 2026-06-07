@@ -23,13 +23,13 @@ data class PointHistoryEntity(
     @PrimaryKey(autoGenerate = true)
     val pointHistoryId: Long = 0,
 
-    val userId: Long,
+    val userId: Long = 0,
 
-    val point: Int,
+    val point: Int = 0,
 
-    val type: String,
+    val type: String = "",
 
-    val description: String?,
+    val description: String? = null,
 
     val createdAt: Long = System.currentTimeMillis()
 )

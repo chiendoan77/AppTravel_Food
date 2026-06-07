@@ -1,18 +1,23 @@
 package com.example.apptravelfood.core.di
 
 import com.example.apptravelfood.data.local.database.AppDatabase
+import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.repository.CheckinRepository
 import com.example.apptravelfood.data.repository.FoodItemRepository
 import com.example.apptravelfood.data.repository.FoodStoreRepository
 import com.example.apptravelfood.data.repository.FoodStoreReviewRepository
 import com.example.apptravelfood.data.repository.PlaceRepositoryLocal
 import com.example.apptravelfood.data.repository.PointHistoryRepository
+import com.example.apptravelfood.data.repository.SyncRepository
 import com.example.apptravelfood.data.repository.UserRepository
 
 object AppContainer {
 
     private lateinit var database: AppDatabase
 
+    val firebaseRepository: FirebaseRepository by lazy {
+        FirebaseRepository()
+    }
     fun init(
         database: AppDatabase
     ) {
@@ -58,6 +63,18 @@ object AppContainer {
     val pointHistoryRepository: PointHistoryRepository by lazy {
         PointHistoryRepository(
             database.pointHistoryDao()
+        )
+    }
+
+    val syncRepository: SyncRepository by lazy {
+        SyncRepository(
+            firebaseRepository = firebaseRepository,
+            userRepository = userRepository,
+            foodStoreRepository = foodStoreRepository,
+            foodItemRepository = foodItemRepository,
+            reviewRepository = foodStoreReviewRepository,
+            checkinRepository = checkinRepository,
+            pointHistoryRepository = pointHistoryRepository
         )
     }
 }

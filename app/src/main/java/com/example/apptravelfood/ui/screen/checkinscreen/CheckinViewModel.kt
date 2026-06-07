@@ -2,6 +2,8 @@ package com.example.apptravelfood.ui.screen.checkinscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.data.firebase.FirebaseRepository
+import com.example.apptravelfood.data.local.entity.CheckinEntity
 import com.example.apptravelfood.data.local.entity.PointHistoryEntity
 import com.example.apptravelfood.data.repository.CheckinRepository
 import com.example.apptravelfood.data.repository.PointHistoryRepository
@@ -15,7 +17,8 @@ import java.util.Calendar
 class CheckinViewModel(
     private val checkinRepository: CheckinRepository,
     private val pointHistoryRepository: PointHistoryRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val firebaseRepository: FirebaseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CheckinUiState())
@@ -97,12 +100,25 @@ class CheckinViewModel(
                     0
                 }
 
-                checkinRepository.checkin(
+                val checkinWithoutId = CheckinEntity(
                     userId = userId,
                     imageUrl = imageUrl,
                     pointEarned = pointEarned,
                     faceVerified = faceVerified
                 )
+
+                val newCheckinId = checkinRepository.insertCheckin(
+                    checkinWithoutId
+                )
+
+                val checkinWithId = checkinWithoutId.copy(
+                    checkinId = newCheckinId
+                )
+
+                try {
+                    firebaseRepository.backupCheckin(checkinWithId)
+                } catch (_: Exception) {
+                }
 
                 if (pointEarned > 0) {
                     userRepository.addPoint(
@@ -110,14 +126,36 @@ class CheckinViewModel(
                         point = pointEarned
                     )
 
-                    pointHistoryRepository.addHistory(
-                        PointHistoryEntity(
-                            userId = userId,
-                            point = pointEarned,
-                            type = "CHECKIN",
-                            description = "Điểm danh ngày $nextDay +$pointEarned điểm"
-                        )
+                    val pointHistoryWithoutId = PointHistoryEntity(
+                        userId = userId,
+                        point = pointEarned,
+                        type = "CHECKIN",
+                        description = "Điểm danh ngày $nextDay +$pointEarned điểm"
                     )
+
+                    val newPointHistoryId = pointHistoryRepository.addHistory(
+                        pointHistoryWithoutId
+                    )
+
+                    val pointHistoryWithId = pointHistoryWithoutId.copy(
+                        pointHistoryId = newPointHistoryId
+                    )
+
+                    try {
+                        firebaseRepository.backupPointHistory(
+                            pointHistoryWithId
+                        )
+                    } catch (_: Exception) {
+                    }
+
+                    val updatedUser = userRepository.getUser(userId)
+
+                    if (updatedUser != null) {
+                        try {
+                            firebaseRepository.backupUser(updatedUser)
+                        } catch (_: Exception) {
+                        }
+                    }
                 }
 
                 loadCheckinData(userId)

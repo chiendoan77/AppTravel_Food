@@ -2,6 +2,7 @@ package com.example.apptravelfood.ui.screen.food.foodstoredetailscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.repository.FoodItemRepository
 import com.example.apptravelfood.data.repository.FoodStoreReviewRepository
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 
 class FoodStoreDetailViewModel(
     private val foodItemRepository: FoodItemRepository,
-    private val reviewRepository: FoodStoreReviewRepository
+    private val reviewRepository: FoodStoreReviewRepository,
+    private val firebaseRepository: FirebaseRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FoodStoreDetailUiState())
@@ -25,6 +27,7 @@ class FoodStoreDetailViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
+                val isOwner = store.createdByUserId == userId
                 val foods = foodItemRepository.getItemsByStore(store.foodStoreId)
                 val reviews = reviewRepository.getReviewsByStore(store.foodStoreId)
                 val myReview = reviewRepository.getMyReview(store.foodStoreId, userId)
@@ -32,6 +35,7 @@ class FoodStoreDetailViewModel(
                 val count = reviewRepository.getReviewCount(store.foodStoreId)
 
                 _uiState.value = FoodStoreDetailUiState(
+                    isOwner = isOwner,
                     isLoading = false,
                     store = store,
                     foodItems = foods,
@@ -85,6 +89,19 @@ class FoodStoreDetailViewModel(
                     comment = state.commentInput
                 )
 
+                val updatedReview =
+                    reviewRepository.getMyReview(
+                        foodStoreId = store.foodStoreId,
+                        userId = userId
+                    )
+
+                if (updatedReview != null) {
+                    try {
+                        firebaseRepository.backupReview(updatedReview)
+                    } catch (_: Exception) {
+                    }
+                }
+
                 loadStoreDetail(
                     store = store,
                     userId = userId
@@ -113,6 +130,13 @@ class FoodStoreDetailViewModel(
                     reviewId = myReview.reviewId,
                     userId = userId
                 )
+
+                try {
+                    firebaseRepository.deleteReview(
+                        myReview.reviewId
+                    )
+                } catch (_: Exception) {
+                }
 
                 loadStoreDetail(
                     store = store,

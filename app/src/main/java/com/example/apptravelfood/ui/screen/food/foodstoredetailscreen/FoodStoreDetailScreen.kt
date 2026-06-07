@@ -7,9 +7,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.CommentBank
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.CommentBank
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,11 +29,11 @@ fun FoodStoreDetailRoute(
     userId: Long,
     onBack: () -> Unit,
     onAddFoodItemClick: (FoodStoreEntity) -> Unit,
-    onFoodItemClick: (FoodItemEntity) -> Unit,
+    onFoodItemClick: (FoodItemEntity) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(store.foodStoreId) {
+    LaunchedEffect(store.foodStoreId, userId) {
         viewModel.loadStoreDetail(
             store = store,
             userId = userId
@@ -61,13 +61,12 @@ fun FoodStoreDetailScreen(
     uiState: FoodStoreDetailUiState,
     onBack: () -> Unit,
     onAddFoodItemClick: (FoodStoreEntity) -> Unit,
+    onFoodItemClick: (FoodItemEntity) -> Unit,
     onRatingChange: (Float) -> Unit,
     onCommentChange: (String) -> Unit,
     onSaveReviewClick: () -> Unit,
-    onDeleteReviewClick: () -> Unit,
-    onFoodItemClick: (FoodItemEntity) -> Unit,
-
-    ) {
+    onDeleteReviewClick: () -> Unit
+) {
     val store = uiState.store
 
     LazyColumn(
@@ -88,7 +87,10 @@ fun FoodStoreDetailScreen(
                     onClick = onBack,
                     modifier = Modifier.padding(12.dp)
                 ) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Quay lại")
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = "Quay lại"
+                    )
                 }
             }
         }
@@ -129,24 +131,40 @@ fun FoodStoreDetailScreen(
                     )
                 }
 
+                if (uiState.isOwner) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    AssistChip(
+                        onClick = {},
+                        label = {
+                            Text("Bạn là người đóng góp quán này")
+                        }
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(20.dp))
 
                 SectionTitle(
                     icon = Icons.Default.RestaurantMenu,
                     title = "Menu món ăn"
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
 
-                store?.let {
-                    Button(
-                        onClick = {
-                            onAddFoodItemClick(it)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text("＋ Thêm món ăn")
+                if (uiState.isOwner) {
+                    store?.let {
+                        Button(
+                            onClick = {
+                                onAddFoodItemClick(it)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("＋ Thêm món ăn")
+                        }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
@@ -161,53 +179,15 @@ fun FoodStoreDetailScreen(
             }
         } else {
             items(uiState.foodItems) { food ->
-                Card(
+                FoodItemCard(
+                    food = food,
+                    canEdit = uiState.isOwner,
                     onClick = {
-                        onFoodItemClick(food)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    elevation = CardDefaults.cardElevation(3.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AsyncImage(
-                            model = food.imageUrl,
-                            contentDescription = food.name,
-                            modifier = Modifier.size(82.dp),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = food.name,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Text(
-                                text = food.description ?: "Chưa có mô tả",
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 2
-                            )
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            Text(
-                                text = "${food.price ?: 0.0} đ",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                        if (uiState.isOwner) {
+                            onFoodItemClick(food)
                         }
                     }
-                }
+                )
             }
         }
 
@@ -218,7 +198,7 @@ fun FoodStoreDetailScreen(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 SectionTitle(
-                    icon = Icons.Default.CommentBank,
+                    icon = Icons.Default.Star,
                     title = "Đánh giá của bạn"
                 )
 
@@ -249,6 +229,13 @@ fun FoodStoreDetailScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                 }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                SectionTitle(
+                    icon = Icons.Default.CommentBank,
+                    title = "Bình luận cộng đồng"
+                )
             }
         }
 
@@ -261,57 +248,132 @@ fun FoodStoreDetailScreen(
             }
         } else {
             items(uiState.reviews) { review ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    elevation = CardDefaults.cardElevation(2.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp)
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(42.dp),
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text("U")
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(12.dp))
-
-                        Column {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.Star,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-
-                                Spacer(modifier = Modifier.width(4.dp))
-
-                                Text("${review.rating} sao")
-                            }
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = review.comment,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
+                ReviewItem(
+                    rating = review.rating,
+                    comment = review.comment
+                )
             }
         }
 
         item {
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun FoodItemCard(
+    food: FoodItemEntity,
+    canEdit: Boolean,
+    onClick: () -> Unit
+) {
+    Card(
+        onClick = onClick,
+        enabled = canEdit,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(3.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = food.imageUrl,
+                contentDescription = food.name,
+                modifier = Modifier.size(82.dp),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = food.name,
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(
+                    text = food.description ?: "Chưa có mô tả",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "${food.price ?: 0.0} đ",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                if (canEdit) {
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Nhấn để sửa món",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ReviewItem(
+    rating: Float,
+    comment: String
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 6.dp),
+        shape = RoundedCornerShape(18.dp),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp)
+        ) {
+            Surface(
+                modifier = Modifier.size(42.dp),
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text("U")
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text("$rating sao")
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = comment,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

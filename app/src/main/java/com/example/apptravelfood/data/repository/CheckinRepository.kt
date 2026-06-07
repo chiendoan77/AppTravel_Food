@@ -6,21 +6,6 @@ import com.example.apptravelfood.data.local.entity.CheckinEntity
 class CheckinRepository(
     private val checkinDao: CheckinDao
 ) {
-    suspend fun checkin(
-        userId: Long,
-        imageUrl: String?,
-        pointEarned: Int,
-        faceVerified: Boolean
-    ): Long {
-        return checkinDao.insertCheckin(
-            CheckinEntity(
-                userId = userId,
-                imageUrl = imageUrl,
-                pointEarned = pointEarned,
-                faceVerified = faceVerified
-            )
-        )
-    }
 
     suspend fun getCheckinsByUser(userId: Long): List<CheckinEntity> {
         return checkinDao.getCheckinsByUserId(userId)
@@ -37,4 +22,16 @@ class CheckinRepository(
             endOfDay = endOfDay
         )
     }
+    suspend fun getCheckinById(checkinId: Long): CheckinEntity? {
+        return checkinDao.getCheckinById(checkinId)
+    }
+
+    suspend fun insertCheckinReplace(checkin: CheckinEntity): Long {
+        return checkinDao.insertCheckinReplace(checkin)
+    }
+
+    suspend fun insertCheckin(checkin: CheckinEntity): Long {
+        return checkinDao.insertCheckin(checkin)
+    }
+
 }

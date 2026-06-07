@@ -18,10 +18,6 @@ class UserRepository(
         userDao.updateName(userId, name)
     }
 
-    suspend fun updateEmail(userId: Long, email: String) {
-        userDao.updateEmail(userId, email)
-    }
-
     suspend fun updatePhone(userId: Long, phone: String) {
         userDao.updatePhone(userId, phone)
     }
@@ -32,5 +28,17 @@ class UserRepository(
 
     suspend fun addPoint(userId: Long, point: Int) {
         userDao.addPoint(userId, point)
+    }
+    suspend fun getUserByEmail(email: String): UserEntity? {
+        return userDao.getUserByEmail(email)
+    }
+    suspend fun updateBiometricEnabled(
+        userId: Long,
+        enabled: Boolean
+    ) {
+        userDao.updateBiometricEnabled(
+            userId = userId,
+            enabled = enabled
+        )
     }
 }

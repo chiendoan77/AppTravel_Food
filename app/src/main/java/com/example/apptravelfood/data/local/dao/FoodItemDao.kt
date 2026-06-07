@@ -17,4 +17,10 @@ interface FoodItemDao {
 
     @Query("SELECT * FROM food_items WHERE foodStoreId = :foodStoreId ORDER BY createdAt DESC")
     suspend fun getFoodItemsByStoreId(foodStoreId: Long): List<FoodItemEntity>
+
+    @Query("SELECT * FROM food_items WHERE foodItemId = :foodItemId LIMIT 1")
+    suspend fun getFoodItemById(foodItemId: Long): FoodItemEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFoodItemReplace(foodItem: FoodItemEntity): Long
 }

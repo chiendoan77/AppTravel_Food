@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Article
+import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
@@ -29,7 +31,10 @@ import coil3.compose.AsyncImage
 @Composable
 fun ProfileRoute(
     viewModel: ProfileViewModel,
-    userId: Long
+    userId: Long,
+    onSettingClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -37,12 +42,20 @@ fun ProfileRoute(
         viewModel.loadUser(userId)
     }
 
-    ProfileScreen(uiState = uiState)
+    ProfileScreen(
+        uiState = uiState,
+        onSettingClick = onSettingClick,
+        onTermsClick = onTermsClick,
+        onLogoutClick = onLogoutClick
+    )
 }
 
 @Composable
 fun ProfileScreen(
-    uiState: ProfileUiState
+    uiState: ProfileUiState,
+    onSettingClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
     val user = uiState.user
 
@@ -137,34 +150,24 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         ProfileMenuItem(
-            icon = Icons.Default.Edit,
-            title = "Chỉnh sửa hồ sơ",
-            subtitle = "Đổi tên, email, số điện thoại"
-        )
-
-        ProfileMenuItem(
             icon = Icons.Default.Settings,
             title = "Cài đặt",
-            subtitle = "Thông báo, giao diện, bảo mật"
+            subtitle = "Đổi mật khẩu, số điện thoại, thông tin cá nhân",
+            onClick = onSettingClick
         )
 
         ProfileMenuItem(
-            icon = Icons.Default.Article,
+            icon = Icons.Default.Assignment,
             title = "Điều khoản sử dụng",
-            subtitle = "Chính sách và quy định ứng dụng"
+            subtitle = "Chính sách và quy định ứng dụng",
+            onClick = onTermsClick
         )
 
         ProfileMenuItem(
             icon = Icons.Default.Logout,
             title = "Đăng xuất",
-            subtitle = "Thoát khỏi tài khoản hiện tại"
-        )
-
-        ProfileMenuItem(
-            icon = Icons.Default.DeleteForever,
-            title = "Xóa tài khoản",
-            subtitle = "Xóa toàn bộ dữ liệu cá nhân",
-            danger = true
+            subtitle = "Thoát khỏi tài khoản hiện tại",
+            onClick = onLogoutClick
         )
     }
 }

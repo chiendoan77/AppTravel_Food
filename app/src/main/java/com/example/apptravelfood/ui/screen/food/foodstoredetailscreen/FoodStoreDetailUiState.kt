@@ -16,6 +16,8 @@ data class FoodStoreDetailUiState(
     val averageRating: Float = 0f,
     val reviewCount: Int = 0,
 
+    val isOwner: Boolean = false,
+
     val ratingInput: Float = 5f,
     val commentInput: String = "",
 

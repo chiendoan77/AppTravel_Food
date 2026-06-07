@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "795813919087",
+    "project_id": "travelfoodapp-98530",
+    "storage_bucket": "travelfoodapp-98530.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795813919087:android:ad15c993f14522a70e509a",
+        "android_client_info": {
+          "package_name": "com.example.apptravelfood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtABK4OjJYwQmUHe05iAAZiGh5-mnbH-c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

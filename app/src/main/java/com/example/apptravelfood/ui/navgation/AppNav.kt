@@ -3,7 +3,10 @@ package com.example.apptravelfood.ui.navgation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -15,6 +18,9 @@ import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.FloatingBottomBar
+import com.example.apptravelfood.ui.screen.authscreen.AuthRoute
+import com.example.apptravelfood.ui.screen.authscreen.AuthViewModel
+import com.example.apptravelfood.ui.screen.authscreen.AuthViewModelFactory
 import com.example.apptravelfood.ui.screen.checkinscreen.CheckinRoute
 import com.example.apptravelfood.ui.screen.checkinscreen.CheckinViewModel
 import com.example.apptravelfood.ui.screen.checkinscreen.CheckinViewModelFactory
@@ -28,14 +34,16 @@ import com.example.apptravelfood.ui.screen.food.foodstoredetailscreen.FoodStoreD
 import com.example.apptravelfood.ui.screen.food.foodstoredetailscreen.FoodStoreDetailViewModel
 import com.example.apptravelfood.ui.screen.food.foodstoredetailscreen.FoodStoreDetailViewModelFactory
 import com.example.apptravelfood.ui.screen.homescreen.detailplacescreen.PlaceDetailScreen
-import com.example.apptravelfood.ui.screen.historycreen.HistoryRoute
-import com.example.apptravelfood.ui.screen.historycreen.HistoryViewModel
-import com.example.apptravelfood.ui.screen.historycreen.HistoryViewModelFactory
+import com.example.apptravelfood.ui.screen.historyscreen.HistoryRoute
+import com.example.apptravelfood.ui.screen.historyscreen.HistoryViewModel
+import com.example.apptravelfood.ui.screen.historyscreen.HistoryViewModelFactory
 import com.example.apptravelfood.ui.screen.homescreen.HomeScreen
 import com.example.apptravelfood.ui.screen.homescreen.HomeViewModel
 import com.example.apptravelfood.ui.screen.profilescreen.ProfileRoute
 import com.example.apptravelfood.ui.screen.profilescreen.ProfileViewModel
 import com.example.apptravelfood.ui.screen.profilescreen.ProfileViewModelFactory
+import com.example.apptravelfood.ui.screen.profilescreen.setting.ProfileSettingScreen
+import com.example.apptravelfood.ui.screen.profilescreen.term.TermsScreen
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -74,28 +82,41 @@ fun AppNav(
     var selectedFoodItem by remember {
         mutableStateOf<FoodItemEntity?>(null)
     }
+
+    var showLogoutDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var loggedUserId by rememberSaveable {
+        mutableStateOf<Long?>(null)
+    }
+
+    val showBottomBar = currentRoute != AppRoute.AUTH
+
     Scaffold(
         bottomBar = {
-            FloatingBottomBar(
-                selectedRoute = currentRoute ?: AppRoute.HOME,
-                onItemClick = { route ->
-                    navController.navigate(route) {
-                        launchSingleTop = true
+            if (showBottomBar) {
+                FloatingBottomBar(
+                    selectedRoute = currentRoute ?: AppRoute.HOME,
+                    onItemClick = { route ->
+                        navController.navigate(route) {
+                            launchSingleTop = true
 
-                        popUpTo(AppRoute.HOME) {
-                            saveState = true
+                            popUpTo(AppRoute.HOME) {
+                                saveState = true
+                            }
+
+                            restoreState = true
                         }
-
-                        restoreState = true
                     }
-                }
-            )
+                )
+            }
         }
     ) { padding ->
 
         NavHost(
             navController = navController,
-            startDestination = AppRoute.HOME,
+            startDestination = AppRoute.AUTH,
             modifier = Modifier.padding(padding)
         ) {
             composable(AppRoute.HOME) {
@@ -152,13 +173,14 @@ fun AppNav(
                     factory = CheckinViewModelFactory(
                         checkinRepository = AppContainer.checkinRepository,
                         pointHistoryRepository = AppContainer.pointHistoryRepository,
-                        userRepository = AppContainer.userRepository
+                        userRepository = AppContainer.userRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
                     )
                 )
 
                 CheckinRoute(
                     viewModel = checkinViewModel,
-                    userId = 1L
+                    userId = loggedUserId ?: return@composable
                 )
             }
 
@@ -172,27 +194,38 @@ fun AppNav(
 
                 HistoryRoute(
                     viewModel = historyViewModel,
-                    userId = 1L
+                    userId = loggedUserId ?: return@composable
                 )
             }
 
             composable(AppRoute.PROFILE) {
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(
-                        userRepository = AppContainer.userRepository
+                        userRepository = AppContainer.userRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
                     )
                 )
 
                 ProfileRoute(
                     viewModel = profileViewModel,
-                    userId = 1L
+                    userId = loggedUserId ?: return@composable,
+                    onSettingClick = {
+                        navController.navigate(AppRoute.PROFILE_SETTING)
+                    },
+                    onTermsClick = {
+                        navController.navigate(AppRoute.TERMS)
+                    },
+                    onLogoutClick = {
+                        showLogoutDialog = true
+                    }
                 )
             }
             composable(AppRoute.FOOD_STORE_DETAIL) {
                 val foodStoreDetailViewModel: FoodStoreDetailViewModel = viewModel(
                     factory = FoodStoreDetailViewModelFactory(
                         foodItemRepository = AppContainer.foodItemRepository,
-                        reviewRepository = AppContainer.foodStoreReviewRepository
+                        reviewRepository = AppContainer.foodStoreReviewRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
                     )
                 )
 
@@ -200,7 +233,7 @@ fun AppNav(
                     FoodStoreDetailRoute(
                         viewModel = foodStoreDetailViewModel,
                         store = store,
-                        userId = 1L,
+                        userId = loggedUserId ?: return@composable,
                         onBack = {
                             navController.popBackStack()
                         },
@@ -220,7 +253,8 @@ fun AppNav(
             composable(AppRoute.ADD_FOOD_STORE) {
                 val addFoodStoreViewModel: AddFoodStoreViewModel = viewModel(
                     factory = AddFoodStoreViewModelFactory(
-                        foodStoreRepository = AppContainer.foodStoreRepository
+                        foodStoreRepository = AppContainer.foodStoreRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
                     )
                 )
 
@@ -228,7 +262,7 @@ fun AppNav(
                     AddFoodStoreRoute(
                         viewModel = addFoodStoreViewModel,
                         place = place,
-                        userId = 1L,
+                        userId = loggedUserId ?: return@composable,
                         onBack = {
                             navController.popBackStack()
                         },
@@ -245,7 +279,8 @@ fun AppNav(
             composable(AppRoute.ADD_FOOD_ITEM) {
                 val addFoodItemViewModel: AddFoodItemViewModel = viewModel(
                     factory = AddFoodItemViewModelFactory(
-                        foodItemRepository = AppContainer.foodItemRepository
+                        foodItemRepository = AppContainer.foodItemRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
                     )
                 )
 
@@ -262,6 +297,109 @@ fun AppNav(
                     )
                 }
             }
+            composable(AppRoute.AUTH) {
+                val authViewModel: AuthViewModel = viewModel(
+                    factory = AuthViewModelFactory(
+                        userRepository = AppContainer.userRepository,
+                        syncRepository = AppContainer.syncRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
+                    )
+                )
+
+                AuthRoute(
+                    viewModel = authViewModel,
+                    onLoginSuccess = { userId ->
+                        loggedUserId = userId
+
+                        navController.navigate(AppRoute.HOME) {
+                            popUpTo(AppRoute.AUTH) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
+            }
+            composable(AppRoute.PROFILE_SETTING) {
+                val profileViewModel: ProfileViewModel = viewModel(
+                    factory = ProfileViewModelFactory(
+                        userRepository = AppContainer.userRepository,
+                        firebaseRepository = AppContainer.firebaseRepository
+                    )
+                )
+
+                val uiState by profileViewModel.uiState.collectAsState()
+                val userId = loggedUserId ?: return@composable
+
+                LaunchedEffect(userId) {
+                    profileViewModel.loadUser(userId)
+                }
+
+                ProfileSettingScreen(
+                    uiState = uiState,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onUpdateName = { name ->
+                        profileViewModel.updateName(userId, name)
+                    },
+                    onUpdatePhone = { phone ->
+                        profileViewModel.updatePhone(userId, phone)
+                    },
+                    onUpdatePassword = { password ->
+                        profileViewModel.updatePassword(userId, password)
+                    },
+                    onUpdateBiometric = { userId, enabled ->
+                        profileViewModel.updateBiometricEnabled(
+                            userId = userId,
+                            enabled = enabled
+                        )
+                    }
+                )
+            }
+            composable(AppRoute.TERMS) {
+                TermsScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        if (showLogoutDialog) {
+            AlertDialog(
+                onDismissRequest = {
+                    showLogoutDialog = false
+                },
+                title = {
+                    Text("Đăng xuất")
+                },
+                text = {
+                    Text("Bạn có chắc muốn đăng xuất không?")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                            loggedUserId = null
+
+                            navController.navigate(AppRoute.AUTH) {
+                                popUpTo(0)
+                            }
+                        }
+                    ) {
+                        Text("Đăng xuất")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            showLogoutDialog = false
+                        }
+                    ) {
+                        Text("Hủy")
+                    }
+                }
+            )
         }
     }
 }

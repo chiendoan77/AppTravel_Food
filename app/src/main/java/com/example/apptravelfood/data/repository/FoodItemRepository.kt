@@ -21,4 +21,12 @@ class FoodItemRepository(
     suspend fun getItemsByStore(foodStoreId: Long): List<FoodItemEntity> {
         return foodItemDao.getFoodItemsByStoreId(foodStoreId)
     }
+
+    suspend fun getFoodItemById(foodItemId: Long): FoodItemEntity? {
+        return foodItemDao.getFoodItemById(foodItemId)
+    }
+
+    suspend fun insertFoodItemReplace(foodItem: FoodItemEntity): Long {
+        return foodItemDao.insertFoodItemReplace(foodItem)
+    }
 }

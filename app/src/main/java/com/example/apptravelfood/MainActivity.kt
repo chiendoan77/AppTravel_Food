@@ -34,7 +34,8 @@ class MainActivity : FragmentActivity() {
             val factory = HomeViewModelFactory(
                 repository = repository,
                 placeRepositoryLocal = AppContainer.placeRepository,
-                foodStoreRepository = AppContainer.foodStoreRepository
+                foodStoreRepository = AppContainer.foodStoreRepository,
+                firebaseRepository = AppContainer.firebaseRepository
             )
 
             val homeViewModel: HomeViewModel = viewModel(

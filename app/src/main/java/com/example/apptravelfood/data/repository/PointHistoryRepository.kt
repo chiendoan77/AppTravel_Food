@@ -13,4 +13,11 @@ class PointHistoryRepository(
     suspend fun getHistoryByUser(userId: Long): List<PointHistoryEntity> {
         return pointHistoryDao.getPointHistoryByUserId(userId)
     }
+    suspend fun getPointHistoryById(pointHistoryId: Long): PointHistoryEntity? {
+        return pointHistoryDao.getPointHistoryById(pointHistoryId)
+    }
+
+    suspend fun insertPointHistoryReplace(history: PointHistoryEntity): Long {
+        return pointHistoryDao.insertPointHistoryReplace(history)
+    }
 }

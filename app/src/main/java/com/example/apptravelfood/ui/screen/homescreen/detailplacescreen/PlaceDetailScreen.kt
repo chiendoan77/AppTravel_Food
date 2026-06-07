@@ -69,7 +69,7 @@ fun PlaceDetailScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             AsyncImage(
-                model = place.thumbnail,
+                model = place.thumbnail_large,
                 contentDescription = place.title,
                 modifier = Modifier
                     .fillMaxWidth()

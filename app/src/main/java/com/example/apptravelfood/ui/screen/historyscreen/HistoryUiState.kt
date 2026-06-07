@@ -1,4 +1,4 @@
-package com.example.apptravelfood.ui.screen.historycreen
+package com.example.apptravelfood.ui.screen.historyscreen
 
 import com.example.apptravelfood.data.local.entity.CheckinEntity
 import com.example.apptravelfood.data.local.entity.PointHistoryEntity

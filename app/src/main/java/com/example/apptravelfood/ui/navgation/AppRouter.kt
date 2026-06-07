@@ -10,4 +10,7 @@ object AppRoute {
     const val FOOD_STORE_DETAIL = "food_store_detail"
     const val ADD_FOOD_STORE = "add_food_store"
     const val ADD_FOOD_ITEM = "add_food_item"
+    const val AUTH = "auth"
+    const val PROFILE_SETTING = "profile_setting"
+    const val TERMS = "terms"
 }

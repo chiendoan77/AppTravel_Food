@@ -23,4 +23,10 @@ interface CheckinDao {
         startOfDay: Long,
         endOfDay: Long
     ): CheckinEntity?
+
+    @Query("SELECT * FROM checkins WHERE checkinId = :checkinId LIMIT 1")
+    suspend fun getCheckinById(checkinId: Long): CheckinEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCheckinReplace(checkin: CheckinEntity): Long
 }

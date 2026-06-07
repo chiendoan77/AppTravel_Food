@@ -25,4 +25,12 @@ class FoodStoreRepository(
     suspend fun getStoresByUser(userId: Long): List<FoodStoreEntity> {
         return foodStoreDao.getFoodStoresByUserId(userId)
     }
+
+    suspend fun getFoodStoreById(foodStoreId: Long): FoodStoreEntity? {
+        return foodStoreDao.getFoodStoreById(foodStoreId)
+    }
+
+    suspend fun insertFoodStoreReplace(foodStore: FoodStoreEntity): Long {
+        return foodStoreDao.insertFoodStoreReplace(foodStore)
+    }
 }

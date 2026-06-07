@@ -13,12 +13,6 @@ import androidx.room.PrimaryKey
             parentColumns = ["placeId"],
             childColumns = ["placeId"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = UserEntity::class,
-            parentColumns = ["userId"],
-            childColumns = ["createdByUserId"],
-            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
@@ -27,21 +21,20 @@ import androidx.room.PrimaryKey
     ]
 )
 data class FoodStoreEntity(
-
     @PrimaryKey(autoGenerate = true)
     val foodStoreId: Long = 0,
 
-    val placeId: String,
+    val placeId: String = "",
 
-    val createdByUserId: Long,
+    val createdByUserId: Long = 0,
 
-    val name: String,
+    val name: String = "",
 
-    val address: String?,
+    val address: String? = null,
 
-    val imageUrl: String?,
+    val imageUrl: String? = null,
 
-    val description: String?,
+    val description: String? = null,
 
     val createdAt: Long = System.currentTimeMillis()
 )

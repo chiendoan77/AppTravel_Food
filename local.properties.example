@@ -1,0 +1,15 @@
+# local.properties.example
+# Copy this file to 'local.properties' at the project root and fill values.
+# Do NOT commit 'local.properties'. Add it to .gitignore (already present).
+
+# Android SDK/tools properties may also exist here, e.g.:
+# sdk.dir=C:\Users\YourName\AppData\Local\Android\sdk
+# ndk.dir=C:\Users\YourName\AppData\Local\Android\sdk\ndk\21.4.7075529
+
+# Custom project properties used by this app:
+# SerpApi / Maps API key used by the app (SERP_API_KEY)
+SERP_API_KEY=your_serp_api_key_here
+
+# Optional: path to google-services.json if you want to document it locally.
+# The project currently expects google-services.json under app/ so this entry is optional.
+# GOOGLE_SERVICES_JSON=app/google-services.json

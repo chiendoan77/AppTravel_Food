@@ -5,6 +5,16 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+import java.util.Properties
+
+// Load API key from environment variable or local.properties (do NOT commit local.properties)
+val localPropsFile = rootProject.file("local.properties")
+val localProps = Properties()
+if (localPropsFile.exists()) {
+    localPropsFile.inputStream().use { localProps.load(it) }
+}
+val serpApiKey: String = System.getenv("SERP_API_KEY") ?: localProps.getProperty("SERP_API_KEY") ?: ""
+
 android {
     namespace = "com.example.apptravelfood"
     compileSdk {
@@ -21,6 +31,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Expose the Serp/Maps API key to the app via BuildConfig at compile time
+        buildConfigField("String", "SERP_API_KEY", "\"${serpApiKey}\"")
     }
 
     buildTypes {

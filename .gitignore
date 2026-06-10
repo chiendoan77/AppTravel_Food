@@ -13,3 +13,10 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Do not commit Firebase config with production keys
+/app/google-services.json
+
+# Ignore log files
+*.log
+hs_err_pid*.log
+log/

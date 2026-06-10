@@ -8,7 +8,7 @@ data class CheckinUiState(
     val todayCheckin: CheckinEntity? = null,
     val totalPoint: Int = 0,
 
-    val checkedDays: List<Int> = emptyList(), // ví dụ: [1,2,3]
+    val checkedDays: List<Int> = emptyList(),
     val message: String? = null,
     val error: String? = null
 )

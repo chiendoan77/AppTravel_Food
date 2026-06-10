@@ -27,7 +27,7 @@ interface UserDao {
     @Query("UPDATE users SET phone = :phone WHERE userId = :userId")
     suspend fun updatePhone(userId: Long, phone: String)
 
-    @Query("UPDATE users SET password = :password WHERE userId = :userId")
+    @Query("UPDATE users SET passwordHash = :password WHERE userId = :userId")
     suspend fun updatePassword(userId: Long, password: String)
 
     @Query("UPDATE users SET totalPoint = totalPoint + :point WHERE userId = :userId")
@@ -41,4 +41,11 @@ interface UserDao {
         userId: Long,
         enabled: Boolean
     )
+    @Query("UPDATE users SET avatarUrl = :avatarUrl WHERE userId = :userId")
+    suspend fun updateAvatar(
+        userId: Long,
+        avatarUrl: String
+    )
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUserReplace(user: UserEntity): Long
 }

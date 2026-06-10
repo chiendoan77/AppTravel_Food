@@ -2,6 +2,7 @@ package com.example.apptravelfood.ui.screen.checkinscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.core.untils.PasswordUtils
 import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.CheckinEntity
 import com.example.apptravelfood.data.local.entity.PointHistoryEntity
@@ -80,11 +81,30 @@ class CheckinViewModel(
                     endOfDay = endOfDay
                 )
 
+
                 if (existed != null) {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         hasCheckedToday = true,
                         todayCheckin = existed,
+                        message = "Hôm nay bạn đã điểm danh rồi"
+                    )
+                    return@launch
+                }
+
+                val existedFirebase = firebaseRepository.getTodayCheckin(
+                    userId = userId,
+                    startOfDay = startOfDay,
+                    endOfDay = endOfDay
+                )
+
+                if (existedFirebase != null) {
+                    checkinRepository.insertCheckinReplace(existedFirebase)
+
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        hasCheckedToday = true,
+                        todayCheckin = existedFirebase,
                         message = "Hôm nay bạn đã điểm danh rồi"
                     )
                     return@launch
@@ -202,5 +222,70 @@ class CheckinViewModel(
             set(Calendar.SECOND, 59)
             set(Calendar.MILLISECOND, 999)
         }.timeInMillis
+    }
+    fun showError(message: String) {
+        _uiState.value = _uiState.value.copy(
+            isLoading = false,
+            error = message
+        )
+    }
+
+    fun checkinWithPassword(
+        userId: Long,
+        password: String
+    ) {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUser(userId)
+
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Không tìm thấy tài khoản"
+                    )
+                    return@launch
+                }
+
+                if (user.authProvider == "GOOGLE") {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Tài khoản Google không có mật khẩu app. Vui lòng dùng sinh trắc học."
+                    )
+                    return@launch
+                }
+
+                if (password.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Vui lòng nhập mật khẩu"
+                    )
+                    return@launch
+                }
+
+                val inputHash = PasswordUtils.hash(password)
+
+                if (user.passwordHash.isBlank()) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Tài khoản chưa có mật khẩu hợp lệ. Hãy đặt lại mật khẩu."
+                    )
+                    return@launch
+                }
+
+                if (user.passwordHash != inputHash) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Mật khẩu không đúng"
+                    )
+                    return@launch
+                }
+
+                checkinToday(
+                    userId = userId,
+                    imageUrl = null,
+                    faceVerified = true
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Không xác thực được mật khẩu"
+                )
+            }
+        }
     }
 }

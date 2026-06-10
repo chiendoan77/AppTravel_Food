@@ -34,6 +34,10 @@ data class FoodStoreEntity(
 
     val imageUrl: String? = null,
 
+    val latitude: Double? = null,
+
+    val longitude: Double? = null,
+
     val description: String? = null,
 
     val createdAt: Long = System.currentTimeMillis()

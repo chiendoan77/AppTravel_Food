@@ -10,5 +10,8 @@ data class AuthUiState(
     val isLoading: Boolean = false,
     val loggedUserId: Long? = null,
     val error: String? = null,
-    val registerSuccess: Boolean = false
+    val registerSuccess: Boolean = false,
+    val forgotPasswordMode: Boolean = false,
+    val otp: String = "",
+    val newPassword: String = "",
 )

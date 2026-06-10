@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "795813919087",
-    "project_id": "travelfoodapp-98530",
-    "storage_bucket": "travelfoodapp-98530.firebasestorage.app"
+    "project_number": "945038624",
+    "project_id": "travlefood-c00c1",
+    "storage_bucket": "travlefood-c00c1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:795813919087:android:ad15c993f14522a70e509a",
+        "mobilesdk_app_id": "1:945038624:android:4a0b3b550abd00713b2345",
         "android_client_info": {
           "package_name": "com.example.apptravelfood"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "945038624-330ighueofr3jlmhnq72v2bh3f5quqab.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCtABK4OjJYwQmUHe05iAAZiGh5-mnbH-c"
+          "current_key": "AIzaSyAqFBtLi_KsACHJHCHKXLS7Ao12lEHOcik"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "945038624-330ighueofr3jlmhnq72v2bh3f5quqab.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

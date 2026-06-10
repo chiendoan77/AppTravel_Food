@@ -8,10 +8,17 @@ data class UserEntity(
     @PrimaryKey(autoGenerate = true)
     val userId: Long = 0,
 
+    val firebaseUid: String? = null,
+
     val fullName: String = "",
     val email: String = "",
-    val password: String = "",
     val phone: String? = null,
+
+    val passwordHash: String = "",
+
+    val authProvider: String = "EMAIL",
+
+    val emailVerified: Boolean = false,
 
     val role: String = "USER",
     val biometricEnabled: Boolean = false,

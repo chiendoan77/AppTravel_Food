@@ -60,7 +60,7 @@ fun AppSearchBar(
 
         shape = RoundedCornerShape(18.dp),
 
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = AppGreen,
             cursorColor = AppGreen,
             focusedLeadingIconColor = AppGreen,

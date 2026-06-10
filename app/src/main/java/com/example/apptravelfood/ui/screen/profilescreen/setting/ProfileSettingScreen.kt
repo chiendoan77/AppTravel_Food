@@ -93,195 +93,196 @@ fun ProfileSettingScreen(
                     .fillMaxSize()
                     .imePadding()
             ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
-                    Text(
-                        text = "Thông tin cá nhân",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedButton(
-                        onClick = {
-                            galleryLauncher.launch("image/*")
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
+                    Column(
+                        modifier = Modifier.padding(16.dp)
                     ) {
-                        Text("Chọn ảnh từ thư viện")
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Tên hiển thị") },
-                        leadingIcon = { Icon(Icons.Default.Person, null) }
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Số điện thoại") },
-                        leadingIcon = { Icon(Icons.Default.Phone, null) }
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Button(
-                        onClick = {
-                            user?.userId?.let {
-                                onUpdateName(name)
-                                onUpdatePhone(phone)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = AppGreen,
-                            contentColor = Color.White
+                        Text(
+                            text = "Thông tin cá nhân",
+                            style = MaterialTheme.typography.titleMedium
                         )
-                    ) {
-                        Icon(Icons.Default.Save, null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Lưu thông tin")
-                    }
-                }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(22.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Bảo mật",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedButton(
-                        onClick = {
-                            onSendPasswordOtp()
-                            otpSent = true
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Text("Gửi OTP đổi mật khẩu")
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    if (otpSent) {
-                        OutlinedTextField(
-                            value = otp,
-                            onValueChange = { otp = it },
+                        OutlinedButton(
+                            onClick = {
+                                galleryLauncher.launch("image/*")
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Nhập OTP") },
-                            singleLine = true
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Chọn ảnh từ thư viện")
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Tên hiển thị") },
+                            leadingIcon = { Icon(Icons.Default.Person, null) }
                         )
 
                         Spacer(modifier = Modifier.height(10.dp))
-                    }
 
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Mật khẩu mới") },
-                        leadingIcon = { Icon(Icons.Default.Lock, null) },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Password
+                        OutlinedTextField(
+                            value = phone,
+                            onValueChange = { phone = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Số điện thoại") },
+                            leadingIcon = { Icon(Icons.Default.Phone, null) }
                         )
-                    )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                    Button(
-                        onClick = {
-                            if (otp.isNotBlank() && password.isNotBlank()) {
-                                onUpdatePasswordWithOtp(
-                                    otp,
-                                    password
-                                )
-                                otp = ""
-                                password = ""
-                                otpSent = false
-                            }
-                        },
-                        enabled = otpSent,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Icon(Icons.Default.Lock, null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Xác nhận đổi mật khẩu")
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Button(
-                        onClick = {
-                            if (password.isNotBlank()) {
-                                onUpdatePassword(password)
-                                password = ""
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
-                        Icon(Icons.Default.Lock, null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Đổi mật khẩu")
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
+                        Button(
+                            onClick = {
+                                user?.userId?.let {
+                                    onUpdateName(name)
+                                    onUpdatePhone(phone)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = AppGreen,
+                                contentColor = Color.White
+                            )
                         ) {
-                            Text(
-                                text = "Đăng nhập bằng vân tay",
-                                style = MaterialTheme.typography.titleSmall
-                            )
+                            Icon(Icons.Default.Save, null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Lưu thông tin")
+                        }
+                    }
+                }
 
-                            Text(
-                                text = "Bật để dùng sinh trắc học khi đăng nhập",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(22.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Bảo mật",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        OutlinedButton(
+                            onClick = {
+                                onSendPasswordOtp()
+                                otpSent = true
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text("Gửi OTP đổi mật khẩu")
                         }
 
-                        Switch(
-                            checked = biometricEnabled,
-                            onCheckedChange = {
-                                biometricEnabled = it
-                                user?.userId?.let { userId ->
-                                    onUpdateBiometric(userId, it)
-                                }
-                            }
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        if (otpSent) {
+                            OutlinedTextField(
+                                value = otp,
+                                onValueChange = { otp = it },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Nhập OTP") },
+                                singleLine = true
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Mật khẩu mới") },
+                            leadingIcon = { Icon(Icons.Default.Lock, null) },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password
+                            )
                         )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Button(
+                            onClick = {
+                                if (otp.isNotBlank() && password.isNotBlank()) {
+                                    onUpdatePasswordWithOtp(
+                                        otp,
+                                        password
+                                    )
+                                    otp = ""
+                                    password = ""
+                                    otpSent = false
+                                }
+                            },
+                            enabled = otpSent,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Icon(Icons.Default.Lock, null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Xác nhận đổi mật khẩu")
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Button(
+                            onClick = {
+                                if (password.isNotBlank()) {
+                                    onUpdatePassword(password)
+                                    password = ""
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Icon(Icons.Default.Lock, null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Đổi mật khẩu")
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = "Đăng nhập bằng vân tay",
+                                    style = MaterialTheme.typography.titleSmall
+                                )
+
+                                Text(
+                                    text = "Bật để dùng sinh trắc học khi đăng nhập",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+
+                            Switch(
+                                checked = biometricEnabled,
+                                onCheckedChange = {
+                                    biometricEnabled = it
+                                    user?.userId?.let { userId ->
+                                        onUpdateBiometric(userId, it)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

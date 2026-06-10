@@ -70,71 +70,71 @@ fun PlaceDetailScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-            AsyncImage(
-                model = place.thumbnail_large,
-                contentDescription = place.title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = place.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = AppGreenStrong
+                AsyncImage(
+                    model = place.thumbnail_large,
+                    contentDescription = place.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    contentScale = ContentScale.Crop
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = place.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = AppGreenStrong
+                    )
 
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    AppSmallTag(text = "${place.rating ?: 0.0} ★")
-                    Text(text = place.rating?.toString() ?: "Chưa có đánh giá")
-                }
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                DetailInfoRow(
-                    icon = Icons.Default.Category,
-                    title = "Kiểu địa điểm",
-                    value = place.type
-                )
-
-                DetailInfoRow(
-                    icon = Icons.Default.LocationOn,
-                    title = "Địa chỉ",
-                    value = place.address ?: "Chưa có địa chỉ"
-                )
-
-                DetailInfoRow(
-                    icon = Icons.Default.LocationOn,
-                    title = "Tọa độ",
-                    value = if (place.gps_coordinates != null) {
-                        "${place.gps_coordinates.latitude}, ${place.gps_coordinates.longitude}"
-                    } else {
-                        "Chưa có tọa độ"
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        AppSmallTag(text = "${place.rating ?: 0.0} ★")
+                        Text(text = place.rating?.toString() ?: "Chưa có đánh giá")
                     }
-                )
 
-                Spacer(modifier = Modifier.height(18.dp))
+                    DetailInfoRow(
+                        icon = Icons.Default.Category,
+                        title = "Kiểu địa điểm",
+                        value = place.type
+                    )
 
-                Text(
-                    text = "Mô tả",
-                    style = MaterialTheme.typography.titleMedium
-                )
+                    DetailInfoRow(
+                        icon = Icons.Default.LocationOn,
+                        title = "Địa chỉ",
+                        value = place.address ?: "Chưa có địa chỉ"
+                    )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                    DetailInfoRow(
+                        icon = Icons.Default.LocationOn,
+                        title = "Tọa độ",
+                        value = if (place.gps_coordinates != null) {
+                            "${place.gps_coordinates.latitude}, ${place.gps_coordinates.longitude}"
+                        } else {
+                            "Chưa có tọa độ"
+                        }
+                    )
 
-                Text(
-                    text = place.description ?: "Chưa có mô tả",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                    Spacer(modifier = Modifier.height(18.dp))
+
+                    Text(
+                        text = "Mô tả",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = place.description ?: "Chưa có mô tả",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
     }
 }
-
 @Composable
 fun DetailInfoRow(
     icon: ImageVector,

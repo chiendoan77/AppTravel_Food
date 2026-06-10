@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.profilescreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,10 +21,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenLight
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSmallTag

@@ -26,6 +26,7 @@ import com.example.apptravelfood.ui.components.AppGlassCard
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
+import com.example.apptravelfood.ui.components.AppGreenLight
 import com.example.apptravelfood.ui.components.MyReviewEditor
 
 @Composable

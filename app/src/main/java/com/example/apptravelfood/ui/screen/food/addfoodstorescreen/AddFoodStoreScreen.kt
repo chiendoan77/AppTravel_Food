@@ -18,7 +18,7 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BorderStroke
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +36,7 @@ import com.example.apptravelfood.domain.model.AddressSuggestion
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.verticalScroll
 import androidx.core.content.ContextCompat
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -154,7 +155,7 @@ fun AddFoodStoreScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = AppGreen,
                     titleContentColor = Color.White,
                     navigationIconContentColor = Color.White
@@ -327,4 +328,5 @@ fun AddFoodStoreScreen(
             )
         }
     }
+}
 }

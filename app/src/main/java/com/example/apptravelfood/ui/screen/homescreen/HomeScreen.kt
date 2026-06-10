@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.example.apptravelfood.core.untils.LocationHelper
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface

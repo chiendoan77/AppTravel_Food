@@ -35,16 +35,16 @@ fun TermsScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-            Text(
-                text = "Điều khoản TravelFood",
-                style = MaterialTheme.typography.headlineSmall,
-                color = AppGreenStrong
-            )
+                Text(
+                    text = "Điều khoản TravelFood",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = AppGreenStrong
+                )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = """
+                Text(
+                    text = """
 1. Người dùng chịu trách nhiệm với thông tin quán ăn, món ăn và bình luận đã đăng.
 
 2. Ứng dụng chỉ hỗ trợ lưu dữ liệu cục bộ trong quá trình học tập/đồ án.
@@ -57,8 +57,9 @@ fun TermsScreen(
 
 6. Dữ liệu có thể bị mất nếu người dùng xóa ứng dụng hoặc xóa dữ liệu local.
                 """.trimIndent(),
-                style = MaterialTheme.typography.bodyMedium
-            )
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }

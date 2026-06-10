@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,9 +18,17 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BorderStroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.apptravelfood.core.untils.LocationHelper
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
+import com.example.apptravelfood.ui.components.AppAccentButton
 import com.example.apptravelfood.core.untils.getAddressFromLocation
 import com.example.apptravelfood.core.untils.getFullAddressFromLocation
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
@@ -144,17 +153,22 @@ fun AddFoodStoreScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = AppGreen,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         }
     ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
+        AppPageSurface(modifier = Modifier.padding(padding)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -189,9 +203,13 @@ fun AddFoodStoreScreen(
                     imagePicker.launch("image/*")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = AppGreen
+                ),
+                border = BorderStroke(1.dp, AppGreen)
             ) {
-                Icon(Icons.Default.Image, null)
+                Icon(Icons.Default.Image, null, tint = AppGreen)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Chọn ảnh quán")
             }
@@ -223,9 +241,13 @@ fun AddFoodStoreScreen(
             OutlinedButton(
                 onClick = onUseCurrentLocationClick,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = AppGreen
+                ),
+                border = BorderStroke(1.dp, AppGreen)
             ) {
-                Icon(Icons.Default.LocationOn, null)
+                Icon(Icons.Default.LocationOn, null, tint = AppGreen)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Dùng vị trí hiện tại")
             }
@@ -295,24 +317,14 @@ fun AddFoodStoreScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
+            AppAccentButton(
+                text = if (uiState.isSaving) "Đang lưu..." else "Lưu quán ăn",
                 onClick = onSaveClick,
-                enabled = !uiState.isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                Icon(Icons.Default.AddBusiness, null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (uiState.isSaving) {
-                        "Đang lưu..."
-                    } else {
-                        "Lưu quán ăn"
-                    }
-                )
-            }
+                enabled = !uiState.isSaving
+            )
         }
     }
 }

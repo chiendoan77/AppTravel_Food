@@ -1,6 +1,5 @@
 package com.example.apptravelfood.ui.screen.checkinscreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +8,12 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiTransportation
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.*
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppAccentButton
+import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppGreenLight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -90,15 +95,11 @@ fun CheckinScreen(
     onDismissPasswordDialog: () -> Unit
 ) {
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
+    AppPageSurface {
         Text(
             text = "Tích điểm nhận quà",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppGreenStrong
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -116,35 +117,18 @@ fun CheckinScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(
+        AppAccentButton(
+            text = if (uiState.hasCheckedToday) "Hôm nay đã điểm danh" else "Điểm danh hôm nay",
             onClick = onCheckinClick,
-            enabled = !uiState.hasCheckedToday && !uiState.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = RoundedCornerShape(18.dp)
-        ) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = if (uiState.hasCheckedToday) {
-                    "Hôm nay đã điểm danh"
-                } else {
-                    "Điểm danh hôm nay"
-                }
-            )
-        }
+            enabled = !uiState.hasCheckedToday && !uiState.isLoading
+        )
 
         uiState.message?.let {
             Spacer(modifier = Modifier.height(12.dp))
-            AssistChip(
-                onClick = {},
-                label = { Text(it) },
-                leadingIcon = {
-                    Icon(Icons.Default.Stars, contentDescription = null)
-                }
-            )
+            AppSmallTag(text = it)
         }
 
         uiState.error?.let {
@@ -217,7 +201,7 @@ fun TotalPointCard(
             Surface(
                 modifier = Modifier.size(68.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = AppGreenLight
             ) {
                 Box(
                     contentAlignment = Alignment.Center
@@ -241,7 +225,7 @@ fun TotalPointCard(
                 Text(
                     text = "$totalPoint điểm",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = AppGreen
                 )
             }
         }

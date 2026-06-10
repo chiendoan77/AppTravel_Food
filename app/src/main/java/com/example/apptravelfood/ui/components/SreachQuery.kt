@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.apptravelfood.ui.components.AppGreen
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,7 +36,8 @@ fun AppSearchBar(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = null
+                contentDescription = null,
+                tint = AppGreen
             )
         },
 
@@ -57,6 +59,13 @@ fun AppSearchBar(
         singleLine = true,
 
         shape = RoundedCornerShape(18.dp),
+
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            focusedBorderColor = AppGreen,
+            cursorColor = AppGreen,
+            focusedLeadingIconColor = AppGreen,
+            focusedLabelColor = AppGreen
+        ),
 
         keyboardOptions = KeyboardOptions(
             imeAction = ImeAction.Search

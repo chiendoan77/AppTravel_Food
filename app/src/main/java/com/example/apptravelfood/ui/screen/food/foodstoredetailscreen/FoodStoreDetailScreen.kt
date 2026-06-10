@@ -14,9 +14,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppAccentButton
+import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppGlassCard
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
@@ -83,14 +89,21 @@ fun FoodStoreDetailScreen(
                     contentScale = ContentScale.Crop
                 )
 
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier.padding(12.dp)
+                // back button in white circular surface for better contrast
+                Surface(
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.95f),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .size(40.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = "Quay lại"
-                    )
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Quay lại",
+                            tint = AppGreen
+                        )
+                    }
                 }
             }
         }
@@ -101,7 +114,8 @@ fun FoodStoreDetailScreen(
             ) {
                 Text(
                     text = store?.name ?: "Chi tiết quán ăn",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = AppGreenStrong
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
@@ -113,15 +127,10 @@ fun FoodStoreDetailScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                AssistChip(
-                    onClick = {},
-                    label = {
-                        Text("${uiState.averageRating} sao • ${uiState.reviewCount} đánh giá")
-                    },
-                    leadingIcon = {
-                        Icon(Icons.Default.Star, contentDescription = null)
-                    }
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AppSmallTag(text = "${uiState.averageRating} ★")
+                    AppSmallTag(text = "${uiState.reviewCount} đánh giá")
+                }
 
                 store?.description?.let {
                     Spacer(modifier = Modifier.height(10.dp))
@@ -134,15 +143,10 @@ fun FoodStoreDetailScreen(
                 if (uiState.isOwner) {
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    AssistChip(
-                        onClick = {},
-                        label = {
-                            Text("Bạn là người đóng góp quán này")
-                        }
-                    )
+                    AppSmallTag(text = "Bạn là người đóng góp quán này")
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 SectionTitle(
                     icon = Icons.Default.RestaurantMenu,
@@ -153,15 +157,11 @@ fun FoodStoreDetailScreen(
 
                 if (uiState.isOwner) {
                     store?.let {
-                        Button(
-                            onClick = {
-                                onAddFoodItemClick(it)
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text("＋ Thêm món ăn")
-                        }
+                        AppAccentButton(
+                            text = "＋ Thêm món ăn",
+                            onClick = { onAddFoodItemClick(it) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -283,7 +283,7 @@ fun FoodItemCard(
             AsyncImage(
                 model = food.imageUrl,
                 contentDescription = food.name,
-                modifier = Modifier.size(82.dp),
+                modifier = Modifier.size(96.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -307,8 +307,8 @@ fun FoodItemCard(
 
                 Text(
                     text = "${food.price ?: 0.0} đ",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.titleMedium,
+                    color = AppGreen
                 )
 
                 if (canEdit) {
@@ -343,10 +343,14 @@ fun ReviewItem(
             Surface(
                 modifier = Modifier.size(42.dp),
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.primaryContainer
+                color = AppGreenLight
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text("U")
+                    Text(
+                        text = "U",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = AppGreenStrong
+                    )
                 }
             }
 
@@ -356,15 +360,7 @@ fun ReviewItem(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.Star,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(4.dp))
-
-                    Text("$rating sao")
+                    AppSmallTag(text = "$rating ★")
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))

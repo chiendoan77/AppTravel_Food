@@ -11,8 +11,13 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.PaddingValues
+import com.example.apptravelfood.ui.components.AppSmallTag
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -37,14 +42,11 @@ fun HistoryScreen(
 ) {
     var selectedTab by remember { mutableStateOf(0) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+    AppPageSurface {
         Text(
             text = "Lịch sử hoạt động",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppGreenStrong
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -67,19 +69,24 @@ fun HistoryScreen(
 
         when {
             uiState.isLoading -> {
-                CircularProgressIndicator()
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
             }
 
             uiState.error != null -> {
-                Text(
-                    text = uiState.error,
-                    color = MaterialTheme.colorScheme.error
-                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = uiState.error,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             }
 
             selectedTab == 0 -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(uiState.checkins) { item ->
                         HistoryCheckinItem(
@@ -93,7 +100,8 @@ fun HistoryScreen(
 
             selectedTab == 1 -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(uiState.pointHistories) { item ->
                         HistoryPointItem(
@@ -150,10 +158,7 @@ fun HistoryCheckinItem(
                 )
             }
 
-            AssistChip(
-                onClick = {},
-                label = { Text("+$point") }
-            )
+            AppSmallTag(text = "+$point")
         }
     }
 }
@@ -196,14 +201,7 @@ fun HistoryPointItem(
                 )
             }
 
-            AssistChip(
-                onClick = {},
-                label = {
-                    Text(
-                        text = if (point >= 0) "+$point" else "$point"
-                    )
-                }
-            )
+            AppSmallTag(text = if (point >= 0) "+$point" else "$point")
         }
     }
 }

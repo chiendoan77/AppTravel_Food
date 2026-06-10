@@ -17,9 +17,11 @@ import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.*
+import androidx.compose.ui.graphics.BorderStroke
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,6 +30,14 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.example.apptravelfood.core.untils.BiometricHelper
 import com.example.apptravelfood.core.untils.GoogleAuthHelper
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenLight
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppAccentButton
+import com.example.apptravelfood.ui.components.AppAccentOutlinedButton
+import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
 import kotlinx.coroutines.launch
 
 @Composable
@@ -128,11 +138,7 @@ fun AuthScreen(
     onResetPasswordClick: () -> Unit,
     onCancelForgotPassword: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(18.dp)
-    ) {
+    AppPageSurface {
         val pagerState = rememberPagerState(pageCount = { 3 })
 
         HorizontalPager(
@@ -153,14 +159,18 @@ fun AuthScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            elevation = CardDefaults.cardElevation(6.dp)
+            elevation = CardDefaults.cardElevation(6.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = AppSurfaceSoft
+            )
         ) {
             Column(
                 modifier = Modifier.padding(18.dp)
             ) {
                 Text(
                     text = if (uiState.isRegisterMode) "Đăng ký" else "Đăng nhập",
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = AppGreenStrong
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
@@ -284,22 +294,18 @@ fun AuthScreen(
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                OutlinedButton(
-                                    onClick = onCancelForgotPassword,
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(14.dp)
-                                ) {
-                                    Text("Hủy")
-                                }
+                                    AppAccentOutlinedButton(
+                                        text = "Hủy",
+                                        onClick = onCancelForgotPassword,
+                                        modifier = Modifier.weight(1f)
+                                    )
 
-                                Button(
-                                    onClick = onResetPasswordClick,
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(14.dp),
-                                    enabled = !uiState.isLoading
-                                ) {
-                                    Text("Xác nhận")
-                                }
+                                    AppAccentButton(
+                                        text = "Xác nhận",
+                                        onClick = onResetPasswordClick,
+                                        modifier = Modifier.weight(1f),
+                                        enabled = !uiState.isLoading
+                                    )
                             }
                         }
                     }
@@ -315,24 +321,20 @@ fun AuthScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
+                AppAccentButton(
+                    text = when {
+                        uiState.isLoading -> "Đang xử lý..."
+                        uiState.isRegisterMode -> "Tạo tài khoản"
+                        else -> "Đăng nhập"
+                    },
                     onClick = {
                         if (uiState.isRegisterMode) onRegisterClick() else onLoginClick()
                     },
                     enabled = !uiState.isLoading,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Text(
-                        text = when {
-                            uiState.isLoading -> "Đang xử lý..."
-                            uiState.isRegisterMode -> "Tạo tài khoản"
-                            else -> "Đăng nhập"
-                        }
-                    )
-                }
+                        .height(54.dp)
+                )
 
                 if (!uiState.isRegisterMode) {
                     OutlinedButton(
@@ -340,7 +342,11 @@ fun AuthScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(46.dp),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = AppGreen
+                        ),
+                        border = BorderStroke(1.dp, AppGreen)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Fingerprint,

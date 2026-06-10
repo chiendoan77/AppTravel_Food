@@ -1,6 +1,5 @@
 package com.example.apptravelfood.ui.screen.profilescreen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -21,10 +20,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
 
 @Composable
 fun ProfileRoute(
@@ -57,18 +60,11 @@ fun ProfileScreen(
 ) {
     val user = uiState.user
 
-    Column(
-        modifier = with(Modifier) {
-            fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-        },
-    ) {
+    AppPageSurface(scrollable = true) {
         Text(
             text = "Tài khoản",
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppGreenStrong
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -76,7 +72,10 @@ fun ProfileScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
-            elevation = CardDefaults.cardElevation(8.dp)
+            elevation = CardDefaults.cardElevation(8.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = AppGreenLight
+            )
         ) {
             Box(
                 modifier = Modifier
@@ -120,15 +119,7 @@ fun ProfileScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        AssistChip(
-                            onClick = {},
-                            label = {
-                                Text("${user?.totalPoint ?: 0} điểm")
-                            },
-                            leadingIcon = {
-                                Icon(Icons.Default.Stars, contentDescription = null)
-                            }
-                        )
+                        AppSmallTag(text = "${user?.totalPoint ?: 0} điểm")
                     }
                 }
             }
@@ -168,6 +159,7 @@ fun ProfileScreen(
             icon = Icons.AutoMirrored.Filled.Logout,
             title = "Đăng xuất",
             subtitle = "Thoát khỏi tài khoản hiện tại",
+            danger = true,
             onClick = onLogoutClick
         )
     }
@@ -181,7 +173,10 @@ fun ProfileInfoCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        elevation = CardDefaults.cardElevation(3.dp)
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = AppSurfaceSoft
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

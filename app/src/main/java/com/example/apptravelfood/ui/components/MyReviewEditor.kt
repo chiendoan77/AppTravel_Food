@@ -24,6 +24,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.graphics.Color
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppAccentButton
+import com.example.apptravelfood.ui.components.AppAccentOutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,11 +86,8 @@ fun MyReviewEditor(
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = if (star <= rating.toInt()) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.outline
-                            }
+                            tint = if (star <= rating.toInt()) AppGreen else MaterialTheme.colorScheme.outline,
+                            modifier = Modifier.size(26.dp)
                         )
                     }
                 }
@@ -110,40 +111,18 @@ fun MyReviewEditor(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Button(
+                AppAccentButton(
+                    text = if (hasReview) "Cập nhật" else "Gửi đánh giá",
                     onClick = onSaveClick,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp)
-                ) {
-                    Text(
-                        text = if (hasReview) {
-                            "Cập nhật"
-                        } else {
-                            "Gửi đánh giá"
-                        }
-                    )
-                }
+                    modifier = Modifier.weight(1f)
+                )
 
                 if (hasReview) {
-                    OutlinedButton(
-                        onClick = {
-                            showDeleteDialog = true
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null
-                        )
-
-                        Spacer(modifier = Modifier.width(6.dp))
-
-                        Text("Xóa")
-                    }
+                    AppAccentOutlinedButton(
+                        text = "Xóa",
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
         }

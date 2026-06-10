@@ -15,8 +15,14 @@ import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BorderStroke
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
+import com.example.apptravelfood.ui.components.AppAccentButton
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
@@ -101,12 +107,10 @@ fun AddFoodItemScreen(
         }
     ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
+        AppPageSurface(modifier = Modifier.padding(padding)) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -140,7 +144,11 @@ fun AddFoodItemScreen(
                     imagePicker.launch("image/*")
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = AppGreen
+                ),
+                border = BorderStroke(1.dp, AppGreen)
             ) {
                 Text("Chọn ảnh món từ thư viện")
             }
@@ -221,26 +229,19 @@ fun AddFoodItemScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(
+            AppAccentButton(
+                text = when {
+                    uiState.isSaving -> "Đang lưu..."
+                    uiState.isEditMode -> "Cập nhật món ăn"
+                    else -> "Lưu món ăn"
+                },
                 onClick = onSaveClick,
                 enabled = !uiState.isSaving,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(18.dp)
-            ) {
-                Icon(Icons.Default.AddCircle, null)
+                    .height(56.dp)
+            )
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Text(
-                    text = when {
-                        uiState.isSaving -> "Đang lưu..."
-                        uiState.isEditMode -> "Cập nhật món ăn"
-                        else -> "Lưu món ăn"
-                    }
-                )
-            }
 
             if (uiState.isEditMode) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -253,7 +254,8 @@ fun AddFoodItemScreen(
                     shape = RoundedCornerShape(18.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
-                    )
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
                 ) {
                     Text("Xóa món ăn")
                 }

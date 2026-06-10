@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 import com.example.apptravelfood.core.untils.LocationHelper
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.core.untils.getAddressFromLocation
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.AppSearchBar
@@ -92,9 +94,15 @@ fun HomeScreen(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    AppPageSurface {
+        Text(
+            text = "Khám phá mọi hành trình",
+            style = androidx.compose.material3.MaterialTheme.typography.headlineSmall,
+            color = AppGreenStrong
+        )
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         AppSearchBar(
             query = query,
             onQueryChange = onQueryChange,

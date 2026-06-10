@@ -8,7 +8,10 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,16 +31,14 @@ fun TermsScreen(
         }
     ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-        ) {
+        AppPageSurface(modifier = Modifier.padding(padding), scrollable = true) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
             Text(
                 text = "Điều khoản TravelFood",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = AppGreenStrong
             )
 
             Spacer(modifier = Modifier.height(12.dp))

@@ -14,10 +14,15 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
+import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppGreen
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import androidx.core.net.toUri
@@ -61,18 +66,16 @@ fun PlaceDetailScreen(
         }
     ) { padding ->
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
+        AppPageSurface(modifier = Modifier.padding(padding), scrollable = true) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
             AsyncImage(
                 model = place.thumbnail_large,
                 contentDescription = place.title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(190.dp),
+                    .height(220.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -81,16 +84,16 @@ fun PlaceDetailScreen(
             ) {
                 Text(
                     text = place.title,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = AppGreenStrong
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                DetailInfoRow(
-                    icon = Icons.Default.Star,
-                    title = "Đánh giá",
-                    value = place.rating?.toString() ?: "Chưa có đánh giá"
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    AppSmallTag(text = "${place.rating ?: 0.0} ★")
+                    Text(text = place.rating?.toString() ?: "Chưa có đánh giá")
+                }
 
                 DetailInfoRow(
                     icon = Icons.Default.Category,
@@ -148,19 +151,20 @@ fun DetailInfoRow(
         Row(
             modifier = Modifier.padding(12.dp)
         ) {
-            Icon(icon, null)
+            Icon(icon, null, tint = AppGreen)
 
             Spacer(modifier = Modifier.width(10.dp))
 
             Column {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    color = AppGreenStrong
                 )
 
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
         }

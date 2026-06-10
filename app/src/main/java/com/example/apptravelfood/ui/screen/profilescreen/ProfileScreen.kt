@@ -2,17 +2,15 @@ package com.example.apptravelfood.ui.screen.profilescreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.filled.Article
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Stars
@@ -60,10 +58,13 @@ fun ProfileScreen(
     val user = uiState.user
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+        modifier = with(Modifier) {
+            fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+                .imePadding()
+        },
     ) {
         Text(
             text = "Tài khoản",
@@ -157,14 +158,14 @@ fun ProfileScreen(
         )
 
         ProfileMenuItem(
-            icon = Icons.Default.Assignment,
+            icon = Icons.AutoMirrored.Filled.Assignment,
             title = "Điều khoản sử dụng",
             subtitle = "Chính sách và quy định ứng dụng",
             onClick = onTermsClick
         )
 
         ProfileMenuItem(
-            icon = Icons.Default.Logout,
+            icon = Icons.AutoMirrored.Filled.Logout,
             title = "Đăng xuất",
             subtitle = "Thoát khỏi tài khoản hiện tại",
             onClick = onLogoutClick
@@ -301,7 +302,7 @@ fun ProfileMenuItem(
             }
 
             Icon(
-                imageVector = Icons.Default.KeyboardArrowRight,
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null
             )
         }

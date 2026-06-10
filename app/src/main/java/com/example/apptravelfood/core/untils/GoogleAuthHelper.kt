@@ -8,6 +8,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 
 data class GoogleUserInfo(
+    val idToken: String,
     val email: String,
     val fullName: String?,
     val avatarUrl: String?
@@ -42,6 +43,7 @@ object GoogleAuthHelper {
             )
 
         return GoogleUserInfo(
+            idToken = googleCredential.idToken,
             email = googleCredential.id,
             fullName = googleCredential.displayName,
             avatarUrl = googleCredential.profilePictureUri?.toString()

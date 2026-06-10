@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -29,12 +32,18 @@ fun CheckinRoute(
     val context = LocalContext.current
     val activity = context as FragmentActivity
 
+    var showPasswordDialog by remember {
+        mutableStateOf(false)
+    }
+
     LaunchedEffect(userId) {
         viewModel.loadCheckinData(userId)
     }
 
     CheckinScreen(
         uiState = uiState,
+        showPasswordDialog = showPasswordDialog,
+
         onCheckinClick = {
             if (BiometricHelper.canAuthenticate(activity)) {
                 BiometricHelper.showBiometricPrompt(
@@ -47,14 +56,27 @@ fun CheckinRoute(
                         )
                     },
                     onError = {
-                        viewModel.checkinToday(
-                            userId = userId,
-                            imageUrl = null,
-                            faceVerified = false
+                        viewModel.showError(
+                            "Xác thực sinh trắc học thất bại"
                         )
                     }
                 )
+            } else {
+                showPasswordDialog = true
             }
+        },
+
+        onPasswordCheckClick = { password ->
+            showPasswordDialog = false
+
+            viewModel.checkinWithPassword(
+                userId = userId,
+                password = password
+            )
+        },
+
+        onDismissPasswordDialog = {
+            showPasswordDialog = false
         }
     )
 }
@@ -62,8 +84,12 @@ fun CheckinRoute(
 @Composable
 fun CheckinScreen(
     uiState: CheckinUiState,
-    onCheckinClick: () -> Unit
+    showPasswordDialog: Boolean,
+    onCheckinClick: () -> Unit,
+    onPasswordCheckClick: (String) -> Unit,
+    onDismissPasswordDialog: () -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -126,6 +152,48 @@ fun CheckinScreen(
             Text(
                 text = it,
                 color = MaterialTheme.colorScheme.error
+            )
+        }
+        if (showPasswordDialog) {
+            var password by remember {
+                mutableStateOf("")
+            }
+
+            AlertDialog(
+                onDismissRequest = onDismissPasswordDialog,
+                title = {
+                    Text("Xác thực điểm danh")
+                },
+                text = {
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                        },
+                        label = {
+                            Text("Nhập mật khẩu tài khoản")
+                        },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onPasswordCheckClick(password)
+                        },
+                        enabled = password.isNotBlank()
+                    ) {
+                        Text("Xác nhận")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = onDismissPasswordDialog
+                    ) {
+                        Text("Hủy")
+                    }
+                }
             )
         }
     }

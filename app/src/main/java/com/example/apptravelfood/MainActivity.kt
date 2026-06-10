@@ -27,7 +27,7 @@ class MainActivity : FragmentActivity() {
         AppContainer.init(database)
 
         setContent {
-            val api = RetrofitClient.api
+            val api = RetrofitClient.serpApi
 
             val repository = PlaceRepository(api)
 

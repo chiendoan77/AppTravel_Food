@@ -1,13 +1,12 @@
 package com.example.apptravelfood.ui.screen.homescreen.detailplacescreen
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Navigation
@@ -37,7 +36,7 @@ fun PlaceDetailScreen(
                 title = { Text("Chi tiết địa điểm") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 },
                 actions = {
@@ -96,7 +95,7 @@ fun PlaceDetailScreen(
                 DetailInfoRow(
                     icon = Icons.Default.Category,
                     title = "Kiểu địa điểm",
-                    value = place.type ?: "Chưa có loại"
+                    value = place.type
                 )
 
                 DetailInfoRow(

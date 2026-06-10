@@ -3,7 +3,7 @@ package com.example.apptravelfood.data.repository
 import com.example.apptravelfood.data.local.dao.PointHistoryDao
 import com.example.apptravelfood.data.local.entity.PointHistoryEntity
 
-class PointHistoryRepository(
+class   PointHistoryRepository(
     private val pointHistoryDao: PointHistoryDao
 ) {
     suspend fun addHistory(history: PointHistoryEntity): Long {

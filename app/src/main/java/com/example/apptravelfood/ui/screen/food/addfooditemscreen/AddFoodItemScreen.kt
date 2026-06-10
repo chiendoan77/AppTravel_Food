@@ -1,8 +1,12 @@
 package com.example.apptravelfood.ui.screen.food.addfooditemscreen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AttachMoney
@@ -11,7 +15,9 @@ import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 
@@ -53,7 +59,8 @@ fun AddFoodItemRoute(
                 foodStoreId = store.foodStoreId,
                 onDeleted = onSuccess
             )
-        }
+        },
+        onLocalImageSelected = viewModel::updateLocalImage
     )
 }
 
@@ -68,8 +75,15 @@ fun AddFoodItemScreen(
     onPriceChange: (String) -> Unit,
     onImageUrlChange: (String) -> Unit,
     onSaveClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onLocalImageSelected: (Uri?) -> Unit,
 ) {
+    val imagePicker =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            onLocalImageSelected(uri)
+        }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -80,7 +94,7 @@ fun AddFoodItemScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 }
             )
@@ -118,6 +132,33 @@ fun AddFoodItemScreen(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            OutlinedButton(
+                onClick = {
+                    imagePicker.launch("image/*")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Chọn ảnh món từ thư viện")
+            }
+
+            val previewImage =
+                uiState.localImageUri ?: uiState.imageUrl.takeIf { it.isNotBlank() }
+
+            if (previewImage != null) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                AsyncImage(
+                    model = previewImage,
+                    contentDescription = "Ảnh món ăn",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(160.dp),
+                    contentScale = ContentScale.Crop
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))

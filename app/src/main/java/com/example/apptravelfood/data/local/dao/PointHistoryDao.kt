@@ -17,4 +17,5 @@ interface PointHistoryDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPointHistoryReplace(history: PointHistoryEntity): Long
+
 }

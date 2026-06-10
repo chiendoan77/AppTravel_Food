@@ -17,12 +17,7 @@ class SyncRepository(
             firebaseRepository.getUserByEmail(email)
                 ?: return null
 
-        val localUser =
-            userRepository.getUser(firebaseUser.userId)
-
-        if (localUser == null) {
-            userRepository.createUser(firebaseUser)
-        }
+        userRepository.insertUserReplace(firebaseUser)
 
         val userId = firebaseUser.userId
 
@@ -72,6 +67,16 @@ class SyncRepository(
             firebaseRepository.getReviewsByUserId(userId)
 
         reviews.forEach { review ->
+
+            val store =
+                foodStoreRepository.getFoodStoreById(
+                    review.foodStoreId
+                )
+
+            if (store == null) {
+                return@forEach
+            }
+
             val existed =
                 reviewRepository.getReviewById(
                     review.reviewId
@@ -113,5 +118,9 @@ class SyncRepository(
                 pointHistoryRepository.insertPointHistoryReplace(history)
             }
         }
+    }
+    suspend fun syncAfterLoginByUserId(userId: Long) {
+        syncCheckins(userId)
+        syncPointHistory(userId)
     }
 }

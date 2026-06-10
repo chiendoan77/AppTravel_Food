@@ -1,10 +1,10 @@
 package com.example.apptravelfood.data.repository
 
-import com.example.apptravelfood.data.remote.api.APIinterface
+import com.example.apptravelfood.data.remote.api.SepriAPI
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 
 class PlaceRepository(
-    private val api: APIinterface
+    private val api: SepriAPI
 ) {
     suspend fun sreachPlaces(
         query: String,

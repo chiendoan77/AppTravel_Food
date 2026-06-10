@@ -2,8 +2,12 @@ package com.example.apptravelfood.ui.screen.authscreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.core.untils.PasswordUtils
+import com.example.apptravelfood.core.untils.ValidationUtils
+import com.example.apptravelfood.data.firebase.FirebaseAuthRepository
 import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.UserEntity
+import com.example.apptravelfood.data.repository.OtpRepository
 import com.example.apptravelfood.data.repository.SyncRepository
 import com.example.apptravelfood.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +17,9 @@ import kotlinx.coroutines.launch
 class AuthViewModel(
     private val userRepository: UserRepository,
     private val syncRepository: SyncRepository,
-    private val firebaseRepository: FirebaseRepository
+    private val firebaseRepository: FirebaseRepository,
+    private val firebaseAuthRepository: FirebaseAuthRepository,
+    private val otpRepository: OtpRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -51,119 +57,154 @@ class AuthViewModel(
             return
         }
 
+        if (state.password.isBlank()) {
+            _uiState.value = state.copy(error = "Mật khẩu là bắt buộc")
+            return
+        }
+
         viewModelScope.launch {
-            var user = userRepository.getUserByEmail(state.email)
-
-            if (user == null) {
-                try {
-                    val syncedUserId =
-                        syncRepository.syncAfterLogin(state.email)
-
-                    user = if (syncedUserId != null) {
-                        userRepository.getUser(syncedUserId)
-                    } else {
-                        null
-                    }
-                } catch (_: Exception) {
-                }
-            }
-
-            if (user == null) {
-                _uiState.value = state.copy(
-                    error = "Tài khoản chưa tồn tại. Hãy đăng ký."
-                )
-                return@launch
-            }
-
-            if (user.password.isNotBlank() && user.password != state.password) {
-                _uiState.value = state.copy(
-                    error = "Mật khẩu không đúng"
-                )
-                return@launch
-            }
-
             try {
-                syncRepository.syncAfterLogin(state.email)
-            } catch (_: Exception) {
-            }
+                _uiState.value = state.copy(isLoading = true, error = null)
 
-            _uiState.value = state.copy(
-                loggedUserId = user.userId,
-                error = null
-            )
+                var user =
+                    userRepository.getUserByEmail(state.email)
+
+                if (user == null) {
+                    val firebaseUser =
+                        firebaseRepository.getUserByEmail(state.email)
+
+                    if (firebaseUser != null) {
+                        userRepository.insertUserReplace(firebaseUser)
+                        user = firebaseUser
+                    }
+                }
+
+                if (user == null) {
+                    _uiState.value = state.copy(
+                        isLoading = false,
+                        error = "Tài khoản chưa tồn tại. Hãy đăng ký."
+                    )
+                    return@launch
+                }
+
+                if (user.authProvider == "GOOGLE") {
+                    _uiState.value = state.copy(
+                        isLoading = false,
+                        error = "Email này đăng nhập bằng Google. Vui lòng dùng Google."
+                    )
+                    return@launch
+                }
+
+                val inputHash = PasswordUtils.hash(state.password)
+
+                if (user.passwordHash.isBlank()) {
+                    _uiState.value = state.copy(
+                        isLoading = false,
+                        error = "Tài khoản này đang dùng dữ liệu mật khẩu cũ. Hãy dùng Quên mật khẩu để đặt lại."
+                    )
+                    return@launch
+                }
+
+                if (user.passwordHash != inputHash) {
+                    _uiState.value = state.copy(
+                        isLoading = false,
+                        error = "Mật khẩu không đúng"
+                    )
+                    return@launch
+                }
+
+                val syncedUserId =
+                    syncRepository.syncAfterLogin(state.email)
+
+                _uiState.value = state.copy(
+                    isLoading = false,
+                    loggedUserId = syncedUserId ?: user.userId,
+                    error = null
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = state.copy(
+                    isLoading = false,
+                    error = e.message ?: "Đăng nhập thất bại"
+                )
+            }
         }
     }
 
     fun register() {
         val state = _uiState.value
 
-        if (state.email.isBlank()) {
-            _uiState.value = state.copy(error = "Email là bắt buộc")
+        if (!ValidationUtils.isValidEmail(state.email)) {
+            _uiState.value = state.copy(
+                error = "Email phải trên 5 ký tự và kết thúc bằng @gmail.com"
+            )
+            return
+        }
+
+        if (!ValidationUtils.isValidPassword(state.password)) {
+            _uiState.value = state.copy(
+                error = "Mật khẩu tối thiểu 5 ký tự và có ít nhất 1 chữ hoa"
+            )
+            return
+        }
+
+        if (state.phone.isNotBlank() && !ValidationUtils.isValidPhone(state.phone)) {
+            _uiState.value = state.copy(
+                error = "Số điện thoại phải có 10 số và bắt đầu bằng 0"
+            )
             return
         }
 
         viewModelScope.launch {
             try {
-                _uiState.value = state.copy(
-                    isLoading = true,
-                    error = null,
-                    registerSuccess = false
-                )
+                _uiState.value = state.copy(isLoading = true, error = null)
 
-                val existedLocal = userRepository.getUserByEmail(state.email)
+                val existedLocal =
+                    userRepository.getUserByEmail(state.email)
 
                 if (existedLocal != null) {
                     _uiState.value = state.copy(
                         isLoading = false,
-                        error = "Email này đã được đăng ký"
+                        error = "Email này đã tồn tại. Vui lòng đăng nhập."
                     )
                     return@launch
                 }
 
-                val existedFirebase = firebaseRepository.getUserByEmail(state.email)
+                val existedFirebase =
+                    firebaseRepository.getUserByEmail(state.email)
 
                 if (existedFirebase != null) {
-                    userRepository.createUser(existedFirebase)
-
-                    _uiState.value = AuthUiState(
-                        email = state.email,
-                        isRegisterMode = false,
-                        registerSuccess = true,
-                        error = null
+                    _uiState.value = state.copy(
+                        isLoading = false,
+                        error = "Email này đã được đăng ký trên hệ thống."
                     )
                     return@launch
                 }
 
-                val newUserWithoutId = UserEntity(
+                val userWithoutId = UserEntity(
                     fullName = state.fullName.ifBlank { "Người dùng TravelFood" },
                     email = state.email,
-                    password = state.password,
                     phone = state.phone.ifBlank { null },
-                    avatarUrl = null,
-                    totalPoint = 0,
-                    role = "USER"
+                    passwordHash = PasswordUtils.hash(state.password),
+                    authProvider = "EMAIL",
+                    emailVerified = false,
+                    role = "USER",
+                    totalPoint = 0
                 )
 
-                val newUserId = userRepository.createUser(newUserWithoutId)
+                val newUserId =
+                    userRepository.createUser(userWithoutId)
 
-                val newUserWithId = newUserWithoutId.copy(
-                    userId = newUserId
-                )
+                val userWithId =
+                    userWithoutId.copy(userId = newUserId)
 
-                try {
-                    firebaseRepository.backupUser(newUserWithId)
-                } catch (e: Exception) {
-                    // Không chặn đăng ký nếu Firebase lỗi
-                }
+                firebaseRepository.backupUser(userWithId)
 
                 _uiState.value = AuthUiState(
                     email = state.email,
-                    password = "",
-                    fullName = "",
-                    phone = "",
                     isRegisterMode = false,
                     registerSuccess = true,
-                    error = null
+                    error = "Đăng ký thành công. Hãy đăng nhập."
                 )
 
             } catch (e: Exception) {
@@ -207,68 +248,247 @@ class AuthViewModel(
     }
 
     fun loginWithGoogle(
+        idToken: String,
         email: String,
         fullName: String?,
         avatarUrl: String?
     ) {
         viewModelScope.launch {
-            var user =
-                userRepository.getUserByEmail(email)
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    error = null
+                )
 
-            if (user == null) {
-                val firebaseUser =
-                    firebaseRepository.getUserByEmail(email)
+                val firebaseUid =
+                    firebaseAuthRepository.loginWithGoogle(idToken)
 
-                if (firebaseUser != null) {
-                    userRepository.createUser(firebaseUser)
-                    user = firebaseUser
+                var user =
+                    userRepository.getUserByEmail(email)
+
+                if (user == null) {
+                    val firebaseUser =
+                        firebaseRepository.getUserByEmail(email)
+
+                    if (firebaseUser != null) {
+                        userRepository.insertUserReplace(firebaseUser)
+                        user = firebaseUser
+                    }
                 }
-            }
 
-            if (user != null) {
-                try {
-                    syncRepository.syncAfterLogin(email)
-                } catch (_: Exception) {
+                if (user != null && user.authProvider == "EMAIL") {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Email này đã được đăng ký bằng mật khẩu. Vui lòng đăng nhập bằng email/password."
+                    )
+                    return@launch
                 }
+
+                if (user == null) {
+                    val userWithoutId = UserEntity(
+                        firebaseUid = firebaseUid,
+                        fullName = fullName ?: "Người dùng Google",
+                        email = email,
+                        phone = null,
+                        passwordHash = "",
+                        authProvider = "GOOGLE",
+                        emailVerified = true,
+                        avatarUrl = avatarUrl,
+                        totalPoint = 0,
+                        role = "USER"
+                    )
+
+                    val newUserId =
+                        userRepository.createUser(userWithoutId)
+
+                    user = userWithoutId.copy(
+                        userId = newUserId
+                    )
+
+                    firebaseRepository.backupUser(user)
+                }
+
+                syncRepository.syncAfterLogin(email)
 
                 _uiState.value = _uiState.value.copy(
+                    isLoading = false,
                     loggedUserId = user.userId,
                     error = null
                 )
-                return@launch
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Đăng nhập Google thất bại"
+                )
             }
-
-            val newUserWithoutId = UserEntity(
-                fullName = fullName ?: "Người dùng Google",
-                email = email,
-                password = "",
-                phone = null,
-                avatarUrl = avatarUrl,
-                totalPoint = 0,
-                role = "USER"
-            )
-
-            val newUserId =
-                userRepository.createUser(newUserWithoutId)
-
-            val newUserWithId =
-                newUserWithoutId.copy(userId = newUserId)
-
-            try {
-                firebaseRepository.backupUser(newUserWithId)
-            } catch (_: Exception) {
-            }
-
-            _uiState.value = _uiState.value.copy(
-                loggedUserId = newUserId,
-                error = null
-            )
         }
     }
 
     fun setError(message: String) {
         _uiState.value = _uiState.value.copy(
             error = message
+        )
+    }
+    fun forgotPassword() {
+        val email = _uiState.value.email
+
+        if (!ValidationUtils.isValidEmail(email)) {
+            _uiState.value = _uiState.value.copy(
+                error = "Nhập email @gmail.com hợp lệ trước"
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+
+                val userLocal =
+                    userRepository.getUserByEmail(email)
+
+                val userFirebase =
+                    firebaseRepository.getUserByEmail(email)
+
+                val user = userLocal ?: userFirebase
+
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Email này chưa đăng ký tài khoản"
+                    )
+                    return@launch
+                }
+
+                if (user.authProvider == "GOOGLE") {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Tài khoản Google không có mật khẩu app"
+                    )
+                    return@launch
+                }
+
+                val response =
+                    otpRepository.sendOtp(email)
+
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    forgotPasswordMode = true,
+                    error = response.message
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Không gửi được OTP"
+                )
+            }
+        }
+    }
+    fun resetPasswordByOtp(
+        otp: String,
+        newPassword: String
+    ) {
+        val email = _uiState.value.email
+
+        if (!ValidationUtils.isValidPassword(newPassword)) {
+            _uiState.value = _uiState.value.copy(
+                error = "Mật khẩu tối thiểu 5 ký tự và có ít nhất 1 chữ hoa"
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+
+                val newPasswordHash =
+                    PasswordUtils.hash(newPassword)
+
+                val response =
+                    otpRepository.resetPassword(
+                        email = email,
+                        otp = otp,
+                        newPasswordHash = newPasswordHash
+                    )
+
+                if (!response.success) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = response.message
+                    )
+                    return@launch
+                }
+
+                var user =
+                    userRepository.getUserByEmail(email)
+
+                if (user == null) {
+                    val firebaseUser =
+                        firebaseRepository.getUserByEmail(email)
+
+                    if (firebaseUser != null) {
+                        userRepository.insertUserReplace(firebaseUser)
+                        user = firebaseUser
+                    }
+                }
+
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = "Không tìm thấy tài khoản"
+                    )
+                    return@launch
+                }
+
+                val updatedUser =
+                    user.copy(
+                        passwordHash = newPasswordHash
+                    )
+
+                userRepository.insertUserReplace(updatedUser)
+                firebaseRepository.backupUser(updatedUser)
+
+                _uiState.value = AuthUiState(
+                    email = email,
+                    isRegisterMode = false,
+                    error = "Đổi mật khẩu thành công. Hãy đăng nhập."
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Đổi mật khẩu thất bại"
+                )
+            }
+        }
+    }
+    fun updateOtp(value: String) {
+        _uiState.value = _uiState.value.copy(
+            otp = value,
+            error = null
+        )
+    }
+
+    fun updateNewPassword(value: String) {
+        _uiState.value = _uiState.value.copy(
+            newPassword = value,
+            error = null
+        )
+    }
+
+    fun cancelForgotPassword() {
+        _uiState.value = _uiState.value.copy(
+            forgotPasswordMode = false,
+            otp = "",
+            newPassword = "",
+            error = null
         )
     }
 }

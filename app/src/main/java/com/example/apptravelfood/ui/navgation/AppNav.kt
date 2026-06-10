@@ -188,7 +188,8 @@ fun AppNav(
                 val historyViewModel: HistoryViewModel = viewModel(
                     factory = HistoryViewModelFactory(
                         checkinRepository = AppContainer.checkinRepository,
-                        pointHistoryRepository = AppContainer.pointHistoryRepository
+                        pointHistoryRepository = AppContainer.pointHistoryRepository,
+                        syncRepository = AppContainer.syncRepository,
                     )
                 )
 
@@ -202,7 +203,8 @@ fun AppNav(
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(
                         userRepository = AppContainer.userRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        otpRepository = AppContainer.otpRepository
                     )
                 )
 
@@ -238,14 +240,14 @@ fun AppNav(
                             navController.popBackStack()
                         },
                         onAddFoodItemClick = { foodStore ->
+                            selectedFoodItem = null
                             selectedFoodStoreForAddItem = foodStore
                             navController.navigate(AppRoute.ADD_FOOD_ITEM)
                         },
-                        onFoodItemClick = {food ->
+                        onFoodItemClick = { food ->
                             selectedFoodItem = food
-                            navController.navigate(
-                                AppRoute.ADD_FOOD_ITEM
-                            )
+                            selectedFoodStoreForAddItem = store
+                            navController.navigate(AppRoute.ADD_FOOD_ITEM)
                         }
                     )
                 }
@@ -254,7 +256,8 @@ fun AppNav(
                 val addFoodStoreViewModel: AddFoodStoreViewModel = viewModel(
                     factory = AddFoodStoreViewModelFactory(
                         foodStoreRepository = AppContainer.foodStoreRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        addressRepository = AppContainer.addressRepository
                     )
                 )
 
@@ -267,6 +270,7 @@ fun AppNav(
                             navController.popBackStack()
                         },
                         onSuccess = {
+                            selectedFoodItem = null
                             navController.popBackStack()
                             homeViewModel.searchPlaces(
                                 query = query,
@@ -288,10 +292,13 @@ fun AppNav(
                     AddFoodItemRoute(
                         viewModel = addFoodItemViewModel,
                         store = store,
+                        editFoodItem = selectedFoodItem,
                         onBack = {
+                            selectedFoodItem = null
                             navController.popBackStack()
                         },
                         onSuccess = {
+                            selectedFoodItem = null
                             navController.popBackStack()
                         }
                     )
@@ -302,7 +309,9 @@ fun AppNav(
                     factory = AuthViewModelFactory(
                         userRepository = AppContainer.userRepository,
                         syncRepository = AppContainer.syncRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        otpRepository = AppContainer.otpRepository,
+                        firebaseAuthRepository = AppContainer.firebaseAuthRepository
                     )
                 )
 
@@ -323,7 +332,8 @@ fun AppNav(
                 val profileViewModel: ProfileViewModel = viewModel(
                     factory = ProfileViewModelFactory(
                         userRepository = AppContainer.userRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        otpRepository = AppContainer.otpRepository
                     )
                 )
 
@@ -353,8 +363,24 @@ fun AppNav(
                             userId = userId,
                             enabled = enabled
                         )
+                    },
+                    onAvatarSelected = { uri ->
+                        profileViewModel.updateAvatar(
+                            userId = userId,
+                            imageUri = uri
+                        )
+                    },
+                    onSendPasswordOtp = {
+                        profileViewModel.sendPasswordOtp(userId)
+                    },
+                    onUpdatePasswordWithOtp = { otp, newPassword ->
+                        profileViewModel.updatePasswordWithOtp(
+                            userId = userId,
+                            otp = otp,
+                            newPassword = newPassword
+                        )
                     }
-                )
+                    )
             }
             composable(AppRoute.TERMS) {
                 TermsScreen(

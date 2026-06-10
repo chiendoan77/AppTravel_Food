@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.food.addfooditemscreen
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apptravelfood.data.firebase.FirebaseRepository
@@ -64,6 +65,16 @@ class AddFoodItemViewModel(
                 _uiState.value = state.copy(isSaving = true, error = null)
 
                 if (state.isEditMode && state.foodItemId != null) {
+                    var finalImageUrl =
+                        state.imageUrl.ifBlank { null }
+
+                    if (state.localImageUri != null) {
+                        finalImageUrl =
+                            firebaseRepository.uploadFoodItemImage(
+                                foodItemId = state.foodItemId,
+                                imageUri = state.localImageUri
+                            )
+                    }
 
                     val updateItem = FoodItemEntity(
                         foodItemId = state.foodItemId,
@@ -71,7 +82,7 @@ class AddFoodItemViewModel(
                         name = state.name,
                         description = state.description.ifBlank { null },
                         price = priceValue,
-                        imageUrl = state.imageUrl.ifBlank { null }
+                        imageUrl = finalImageUrl
                     )
 
                     foodItemRepository.updateFoodItem(updateItem)
@@ -93,8 +104,20 @@ class AddFoodItemViewModel(
 
                     val newId = foodItemRepository.addFoodItem(itemWithoutId)
 
+                    var finalImageUrl =
+                        state.imageUrl.ifBlank { null }
+
+                    if (state.localImageUri != null) {
+                        finalImageUrl =
+                            firebaseRepository.uploadFoodItemImage(
+                                foodItemId = newId,
+                                imageUri = state.localImageUri
+                            )
+                    }
+
                     val itemWithId = itemWithoutId.copy(
-                        foodItemId = newId
+                        foodItemId = newId,
+                        imageUrl = finalImageUrl
                     )
 
                     try {
@@ -150,5 +173,11 @@ class AddFoodItemViewModel(
                 )
             }
         }
+    }
+
+    fun updateLocalImage(uri: Uri?) {
+        _uiState.value = _uiState.value.copy(
+            localImageUri = uri
+        )
     }
 }

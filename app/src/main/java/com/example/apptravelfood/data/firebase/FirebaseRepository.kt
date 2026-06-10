@@ -3,10 +3,13 @@ package com.example.apptravelfood.data.firebase
 import com.example.apptravelfood.data.local.entity.*
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import android.net.Uri
+import com.google.firebase.storage.FirebaseStorage
 
 class FirebaseRepository {
 
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     suspend fun backupUser(user: UserEntity) {
         db.collection("users")
@@ -133,18 +136,64 @@ class FirebaseRepository {
 
         return snapshot.toObjects(FoodStoreEntity::class.java)
     }
-    suspend fun getReviewsByFoodStoreId(foodStoreId: Long): List<FoodStoreReviewEntity> {
-        val snapshot = db.collection("food_store_reviews")
-            .whereEqualTo("foodStoreId", foodStoreId)
-            .get()
-            .await()
-
-        return snapshot.toObjects(FoodStoreReviewEntity::class.java)
-    }
     suspend fun deleteFoodItem(foodItemId: Long) {
         db.collection("food_items")
             .document(foodItemId.toString())
             .delete()
             .await()
+    }
+
+    suspend fun uploadUserAvatar(
+        userId: Long,
+        imageUri: Uri
+    ): String {
+        val ref = storage.reference
+            .child("avatars")
+            .child("user_$userId.jpg")
+
+        ref.putFile(imageUri).await()
+
+        return ref.downloadUrl.await().toString()
+    }
+
+    suspend fun uploadFoodStoreImage(
+        foodStoreId: Long,
+        imageUri: Uri
+    ): String {
+        val ref = storage.reference
+            .child("food_stores")
+            .child("store_$foodStoreId.jpg")
+
+        ref.putFile(imageUri).await()
+
+        return ref.downloadUrl.await().toString()
+    }
+
+    suspend fun uploadFoodItemImage(
+        foodItemId: Long,
+        imageUri: Uri
+    ): String {
+        val ref = storage.reference
+            .child("food_items")
+            .child("item_$foodItemId.jpg")
+
+        ref.putFile(imageUri).await()
+
+        return ref.downloadUrl.await().toString()
+    }
+    suspend fun getTodayCheckin(
+        userId: Long,
+        startOfDay: Long,
+        endOfDay: Long
+    ): CheckinEntity? {
+        val snapshot = db.collection("checkins")
+            .whereEqualTo("userId", userId)
+            .get()
+            .await()
+
+        return snapshot.toObjects(CheckinEntity::class.java)
+            .firstOrNull { checkin ->
+                checkin.checkinTime in startOfDay..endOfDay
+            }
     }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apptravelfood.data.repository.CheckinRepository
 import com.example.apptravelfood.data.repository.PointHistoryRepository
+import com.example.apptravelfood.data.repository.SyncRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.launch
 
 class HistoryViewModel(
     private val checkinRepository: CheckinRepository,
-    private val pointHistoryRepository: PointHistoryRepository
+    private val pointHistoryRepository: PointHistoryRepository,
+    private val syncRepository: SyncRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
@@ -22,6 +24,7 @@ class HistoryViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
+                syncRepository.syncAfterLoginByUserId(userId)
                 val checkins = checkinRepository.getCheckinsByUser(userId)
                 val points = pointHistoryRepository.getHistoryByUser(userId)
 

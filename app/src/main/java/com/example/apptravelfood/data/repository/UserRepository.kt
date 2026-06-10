@@ -6,6 +6,9 @@ import com.example.apptravelfood.data.local.entity.UserEntity
 class UserRepository(
     private val userDao: UserDao
 ) {
+    suspend fun insertUserReplace(user: UserEntity): Long {
+        return userDao.insertUserReplace(user)
+    }
     suspend fun createUser(user: UserEntity): Long {
         return userDao.insertUser(user)
     }
@@ -40,5 +43,11 @@ class UserRepository(
             userId = userId,
             enabled = enabled
         )
+    }
+    suspend fun updateAvatar(
+        userId: Long,
+        avatarUrl: String
+    ) {
+        userDao.updateAvatar(userId, avatarUrl)
     }
 }

@@ -59,3 +59,41 @@ fun getAddressFromLocation(
         }
     )
 }
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+fun getFullAddressFromLocation(
+    context: Context,
+    latitude: Double,
+    longitude: Double,
+    onResult: (String) -> Unit
+) {
+    val geocoder = Geocoder(
+        context,
+        Locale.forLanguageTag("vi-VN")
+    )
+
+    geocoder.getFromLocation(
+        latitude,
+        longitude,
+        1,
+        object : Geocoder.GeocodeListener {
+
+            override fun onGeocode(
+                addresses: MutableList<Address>
+            ) {
+                val address = addresses.firstOrNull()
+
+                val fullAddress =
+                    address?.getAddressLine(0)
+                        ?: "$latitude, $longitude"
+
+                onResult(fullAddress)
+            }
+
+            override fun onError(
+                errorMessage: String?
+            ) {
+                onResult("$latitude, $longitude")
+            }
+        }
+    )
+}

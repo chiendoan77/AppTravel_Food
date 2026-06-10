@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material.icons.filled.GMobiledata
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.PersonAdd
@@ -18,7 +20,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.example.apptravelfood.core.untils.BiometricHelper
@@ -78,6 +83,7 @@ fun AuthRoute(
                     val googleUser = GoogleAuthHelper.signIn(context)
 
                     viewModel.loginWithGoogle(
+                        idToken = googleUser.idToken,
                         email = googleUser.email,
                         fullName = googleUser.fullName,
                         avatarUrl = googleUser.avatarUrl
@@ -88,7 +94,19 @@ fun AuthRoute(
                     )
                 }
             }
-        }
+        },
+        onForgotPasswordClick = {
+            viewModel.forgotPassword()
+        },
+        onOtpChange = viewModel::updateOtp,
+        onNewPasswordChange = viewModel::updateNewPassword,
+        onResetPasswordClick = {
+            viewModel.resetPasswordByOtp(
+                otp = uiState.otp,
+                newPassword = uiState.newPassword
+            )
+        },
+        onCancelForgotPassword = viewModel::cancelForgotPassword
     )
 }
 
@@ -103,7 +121,12 @@ fun AuthScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
     onBiometricClick: () -> Unit,
-    onGoogleLoginClick: () -> Unit
+    onGoogleLoginClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit,
+    onOtpChange: (String) -> Unit,
+    onNewPasswordChange: (String) -> Unit,
+    onResetPasswordClick: () -> Unit,
+    onCancelForgotPassword: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -158,7 +181,10 @@ fun AuthScreen(
                         onValueChange = onPhoneChange,
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Số điện thoại") },
-                        singleLine = true
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Phone
+                        )
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -170,7 +196,10 @@ fun AuthScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Email *") },
                     leadingIcon = { Icon(Icons.Default.Email, null) },
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -180,8 +209,101 @@ fun AuthScreen(
                     onValueChange = onPasswordChange,
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Mật khẩu") },
-                    singleLine = true
+                    singleLine = true,
+                    leadingIcon = { Icon(Icons.Default.Lock, null) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password
+                    )
                 )
+                if (!uiState.isRegisterMode) {
+                    TextButton(
+                        onClick = onForgotPasswordClick,
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Quên mật khẩu?")
+                    }
+                }
+                if (uiState.forgotPasswordMode) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(14.dp)
+                        ) {
+                            Text(
+                                text = "Đặt lại mật khẩu",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "OTP đã được gửi về email. Nhập OTP và mật khẩu mới để đặt lại.",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            OutlinedTextField(
+                                value = uiState.otp,
+                                onValueChange = onOtpChange,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Mã OTP") },
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            OutlinedTextField(
+                                value = uiState.newPassword,
+                                onValueChange = onNewPasswordChange,
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("Mật khẩu mới") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Lock, null)
+                                },
+                                singleLine = true,
+                                visualTransformation = PasswordVisualTransformation(),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Password
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = onCancelForgotPassword,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(14.dp)
+                                ) {
+                                    Text("Hủy")
+                                }
+
+                                Button(
+                                    onClick = onResetPasswordClick,
+                                    modifier = Modifier.weight(1f),
+                                    shape = RoundedCornerShape(14.dp),
+                                    enabled = !uiState.isLoading
+                                ) {
+                                    Text("Xác nhận")
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (uiState.registerSuccess) {
                     Spacer(modifier = Modifier.height(10.dp))
@@ -250,6 +372,16 @@ fun AuthScreen(
                     }
                 }
 
+                uiState.error?.let {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
                 TextButton(
                     onClick = onToggleMode,
                     modifier = Modifier.fillMaxWidth()
@@ -269,7 +401,7 @@ fun AuthScreen(
 
 @Composable
 fun IntroPage(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     desc: String
 ) {

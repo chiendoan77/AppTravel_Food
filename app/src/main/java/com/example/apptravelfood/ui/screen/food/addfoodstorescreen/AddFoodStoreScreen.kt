@@ -1,8 +1,14 @@
 package com.example.apptravelfood.ui.screen.food.addfoodstorescreen
 
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddBusiness
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Image
@@ -11,19 +17,64 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.core.untils.LocationHelper
+import com.example.apptravelfood.core.untils.getAddressFromLocation
+import com.example.apptravelfood.core.untils.getFullAddressFromLocation
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
+import com.example.apptravelfood.domain.model.AddressSuggestion
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.core.content.ContextCompat
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AddFoodStoreRoute(
     viewModel: AddFoodStoreViewModel,
     place: LocalResultsDto,
     userId: Long,
     onBack: () -> Unit,
-    onSuccess: () -> Unit,
+    onSuccess: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
+    val getCurrentAddress = {
+        val permission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
+
+        if (permission == PackageManager.PERMISSION_GRANTED) {
+            LocationHelper(context).getCurrentLocation { lat, lng ->
+                getFullAddressFromLocation(
+                    context = context,
+                    latitude = lat,
+                    longitude = lng
+                ) { fullAddress ->
+                    viewModel.updateCurrentLocationSafe(
+                        address = fullAddress,
+                        latitude = lat,
+                        longitude = lng
+                    )
+                }
+            }
+        } else {
+            viewModel.setError("Chưa cấp quyền vị trí")
+        }
+    }
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                getCurrentAddress()
+            } else {
+                viewModel.setError("Bạn cần cấp quyền vị trí để dùng chức năng này")
+            }
+        }
     LaunchedEffect(uiState.success) {
         if (uiState.success) {
             onSuccess()
@@ -37,7 +88,6 @@ fun AddFoodStoreRoute(
         onNameChange = viewModel::updateName,
         onAddressChange = viewModel::updateAddress,
         onDescriptionChange = viewModel::updateDescription,
-        onImageUrlChange = viewModel::updateImageUrl,
         onSaveClick = {
             val placeId = place.place_id ?: return@AddFoodStoreScreen
 
@@ -45,6 +95,22 @@ fun AddFoodStoreRoute(
                 placeId = placeId,
                 userId = userId
             )
+        },
+        onLocalImageSelected = viewModel::updateLocalImage,
+        onAddressSuggestionClick = viewModel::selectAddressSuggestion,
+        onUseCurrentLocationClick = {
+            val permission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+
+            if (permission == PackageManager.PERMISSION_GRANTED) {
+                getCurrentAddress()
+            } else {
+                locationPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
         }
     )
 }
@@ -58,16 +124,25 @@ fun AddFoodStoreScreen(
     onNameChange: (String) -> Unit,
     onAddressChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onImageUrlChange: (String) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onLocalImageSelected: (Uri?) -> Unit,
+    onAddressSuggestionClick: (AddressSuggestion) -> Unit,
+    onUseCurrentLocationClick: () -> Unit
 ) {
+    val imagePicker =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.GetContent()
+        ) { uri ->
+            onLocalImageSelected(uri)
+        }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Đóng góp quán ăn") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 }
             )
@@ -109,6 +184,20 @@ fun AddFoodStoreScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            OutlinedButton(
+                onClick = {
+                    imagePicker.launch("image/*")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.Image, null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Chọn ảnh quán")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = onNameChange,
@@ -126,20 +215,65 @@ fun AddFoodStoreScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Địa chỉ quán") },
                 leadingIcon = { Icon(Icons.Default.LocationOn, null) },
-                singleLine = false,
                 minLines = 2
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            OutlinedTextField(
-                value = uiState.imageUrl,
-                onValueChange = onImageUrlChange,
+            OutlinedButton(
+                onClick = onUseCurrentLocationClick,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Link hình ảnh quán") },
-                leadingIcon = { Icon(Icons.Default.Image, null) },
-                singleLine = true
-            )
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Icon(Icons.Default.LocationOn, null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Dùng vị trí hiện tại")
+            }
+
+            if (uiState.isSearchingAddress) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (uiState.addressSuggestions.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(3.dp)
+                ) {
+                    Column {
+                        uiState.addressSuggestions.forEach { suggestion ->
+                            ListItem(
+                                headlineContent = {
+                                    Text(suggestion.address)
+                                },
+                                supportingContent = {
+                                    Text("GPS: ${suggestion.latitude}, ${suggestion.longitude}")
+                                },
+                                leadingContent = {
+                                    Icon(Icons.Default.LocationOn, null)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            TextButton(
+                                onClick = {
+                                    onAddressSuggestionClick(suggestion)
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Chọn địa chỉ này")
+                            }
+
+                            HorizontalDivider()
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 

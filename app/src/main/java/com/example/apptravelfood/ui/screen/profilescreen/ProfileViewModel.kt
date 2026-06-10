@@ -8,10 +8,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.net.Uri
+import android.util.Log
+import com.example.apptravelfood.core.untils.PasswordUtils
+import com.example.apptravelfood.core.untils.ValidationUtils
+import com.example.apptravelfood.data.repository.OtpRepository
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
-    private val firebaseRepository: FirebaseRepository
+    private val firebaseRepository: FirebaseRepository,
+    private val otpRepository: OtpRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -57,9 +63,15 @@ class ProfileViewModel(
     }
 
     fun updatePassword(userId: Long, password: String) {
+        if (!ValidationUtils.isValidPassword(password)) {
+            _uiState.value = _uiState.value.copy(
+                error = "Mật khẩu phải dài ít nhất 5 ký tự và có 1 chữ viết hoa"
+            )
+            return
+        }
         viewModelScope.launch {
             try {
-                userRepository.updatePassword(userId, password)
+                userRepository.updatePassword(userId, PasswordUtils.hash(password))
                 backupUpdatedUser(userId)
                 loadUser(userId)
 
@@ -117,6 +129,131 @@ class ProfileViewModel(
             } catch (_: Exception) {
                 // Room đã cập nhật thành công.
                 // Firebase lỗi thì không làm app crash.
+            }
+        }
+    }
+
+    fun updateAvatar(
+        userId: Long,
+        imageUri: Uri
+    ) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    error = null
+                )
+
+                val avatarUrl =
+                    firebaseRepository.uploadUserAvatar(
+                        userId = userId,
+                        imageUri = imageUri
+                    )
+
+                userRepository.updateAvatar(
+                    userId = userId,
+                    avatarUrl = avatarUrl
+                )
+
+                backupUpdatedUser(userId)
+
+                loadUser(userId)
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Không cập nhật được ảnh đại diện"
+                )
+            }
+        }
+    }
+    fun sendPasswordOtp(userId: Long) {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUser(userId)
+
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Không tìm thấy tài khoản"
+                    )
+                    return@launch
+                }
+
+                if (user.authProvider == "GOOGLE") {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Tài khoản Google không dùng mật khẩu app"
+                    )
+                    return@launch
+                }
+
+                otpRepository.sendOtp(user.email)
+                Log.d("a","success=\${response.success}, message=\${response.message}")
+
+                _uiState.value = _uiState.value.copy(
+                    error = "Đã gửi OTP về email"
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Không gửi được OTP"
+                )
+            }
+        }
+    }
+    fun updatePasswordWithOtp(
+        userId: Long,
+        otp: String,
+        newPassword: String
+    ) {
+        viewModelScope.launch {
+            try {
+                val user = userRepository.getUser(userId)
+
+                if (user == null) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Không tìm thấy tài khoản"
+                    )
+                    return@launch
+                }
+
+                if (!ValidationUtils.isValidPassword(newPassword)) {
+                    _uiState.value = _uiState.value.copy(
+                        error = "Mật khẩu tối thiểu 5 ký tự và có ít nhất 1 chữ hoa"
+                    )
+                    return@launch
+                }
+
+                val newHash = PasswordUtils.hash(newPassword)
+
+                val response = otpRepository.resetPassword(
+                    email = user.email,
+                    otp = otp,
+                    newPasswordHash = newHash
+                )
+
+                if (!response.success) {
+                    _uiState.value = _uiState.value.copy(
+                        error = response.message
+                    )
+                    return@launch
+                }
+
+                val updatedUser = user.copy(
+                    passwordHash = newHash
+                )
+
+                userRepository.insertUserReplace(updatedUser)
+                firebaseRepository.backupUser(updatedUser)
+
+                _uiState.value = _uiState.value.copy(
+                    user = updatedUser,
+                    error = "Đổi mật khẩu thành công"
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = e.message ?: "Đổi mật khẩu thất bại"
+                )
             }
         }
     }

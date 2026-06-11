@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.authscreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apptravelfood.core.untils.PasswordUtils
@@ -259,17 +260,20 @@ class AuthViewModel(
                     isLoading = true,
                     error = null
                 )
+                Log.d("GOOGLE_LOGIN", "idToken length: ${idToken.length}")
+                Log.d("GOOGLE_LOGIN", "idToken start: ${idToken.take(10)}...")
 
                 val firebaseUid =
                     firebaseAuthRepository.loginWithGoogle(idToken)
 
                 var user =
                     userRepository.getUserByEmail(email)
-
+                Log.d("GOOGLE_LOGIN", "localUser=$user")
+                Log.d("GOOGLE_LOGIN", "firebaseUid=$firebaseUid")
                 if (user == null) {
                     val firebaseUser =
                         firebaseRepository.getUserByEmail(email)
-
+                    Log.d("GOOGLE_LOGIN", "firebaseUser=$firebaseUser")
                     if (firebaseUser != null) {
                         userRepository.insertUserReplace(firebaseUser)
                         user = firebaseUser
@@ -300,23 +304,34 @@ class AuthViewModel(
 
                     val newUserId =
                         userRepository.createUser(userWithoutId)
-
+                    Log.d("GOOGLE_LOGIN", "newUserId=$newUserId")
                     user = userWithoutId.copy(
                         userId = newUserId
                     )
 
                     firebaseRepository.backupUser(user)
                 }
-
+                Log.d("GOOGLE_LOGIN", "Start sync")
                 syncRepository.syncAfterLogin(email)
+                val syncUserId =
+                    syncRepository.syncAfterLogin(email)
 
+                Log.d("GOOGLE_LOGIN", "syncUserId=$syncUserId")
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     loggedUserId = user.userId,
                     error = null
                 )
-
+                Log.d(
+                    "GOOGLE_LOGIN",
+                    "SUCCESS userId=${user.userId}"
+                )
             } catch (e: Exception) {
+                Log.e(
+                    "GOOGLE_LOGIN",
+                    "FAILED",
+                    e
+                )
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Đăng nhập Google thất bại"

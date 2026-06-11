@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "945038624-330ighueofr3jlmhnq72v2bh3f5quqab.apps.googleusercontent.com",
+          "client_id": "945038624-2r56hofs4li4muufdu64gqq3gicetckj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.apptravelfood",
+            "certificate_hash": "d15bd4332c78877ea981c56065352d32c5502b27"
+          }
+        },
+        {
+          "client_id": "945038624-dkopfiggv0ljpvg52fap9oi15lcu90vt.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

@@ -5,9 +5,8 @@ import com.example.apptravelfood.BuildConfig
 object AppConstant {
     val API_KEY: String = BuildConfig.SERP_API_KEY
 
-    const val SUPABASE_URL = "https://urcfunxbieiblbhqyhej.supabase.co"
-
-    const val SUPABASE_ANON_KEY = "sb_publishable_yDojEVX1K7flGxq_o_bgLQ_qWZLZ30o"
+    val SUPABASE_URL: String = BuildConfig.SUPABASE_URL
+    val SUPABASE_ANON_KEY: String = BuildConfig.SUPABASE_ANON_KEY
     private val LOCATION_MAP = mapOf(
         "Huế" to "Hue, Vietnam",
         "Thừa Thiên Huế" to "Hue, Vietnam",

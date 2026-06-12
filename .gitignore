@@ -8,13 +8,26 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+**/build/
 /captures
 .externalNativeBuild
 .cxx
+
+# Local SDK paths and API credentials
 local.properties
-# Do not commit Firebase config with production keys
-/app/google-services.json
+secrets.properties
+keystore.properties
+.env
+.env.*
+!.env.example
+
+# Firebase/Google configuration downloaded for a local environment
+**/google-services.json
+**/google-services-*.json
+
+# Signing credentials
+*.jks
+*.keystore
 
 # Ignore log files
 *.log

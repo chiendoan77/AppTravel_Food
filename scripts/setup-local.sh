@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USAGE="Usage: setup-local.sh [-f]
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SOURCE_FILE="$PROJECT_ROOT/local.properties.example"
+DEST_FILE="$PROJECT_ROOT/local.properties"
+
+USAGE="Usage: scripts/setup-local.sh [-f]
 
 Copies local.properties.example to local.properties in the project root.
 Use -f to overwrite an existing local.properties."
@@ -14,10 +19,31 @@ while getopts ":f" opt; do
   esac
 done
 
-if [ -f local.properties ] && [ "$FORCE" -ne 1 ]; then
+if [ -f "$DEST_FILE" ] && [ "$FORCE" -ne 1 ]; then
   echo "local.properties already exists. Use -f to overwrite." >&2
   exit 1
 fi
 
-cp -f local.properties.example local.properties
-echo "Created local.properties from local.properties.example. Edit it and add your keys."
+cp -f "$SOURCE_FILE" "$DEST_FILE"
+
+SDK_PATH=""
+for candidate in \
+  "${ANDROID_SDK_ROOT:-}" \
+  "${ANDROID_HOME:-}" \
+  "$HOME/Library/Android/sdk" \
+  "$HOME/Android/Sdk"; do
+  if [ -n "$candidate" ] && [ -d "$candidate" ]; then
+    SDK_PATH="$candidate"
+    break
+  fi
+done
+
+if [ -n "$SDK_PATH" ]; then
+  printf '\nsdk.dir=%s\n' "$SDK_PATH" >> "$DEST_FILE"
+  echo "Android SDK found: $SDK_PATH"
+else
+  echo "Android SDK was not found automatically." >&2
+  echo "Open Android Studio > Settings/Preferences > Android SDK, then add sdk.dir to local.properties." >&2
+fi
+
+echo "Created local.properties. Add your API configuration before building."

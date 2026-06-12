@@ -7,13 +7,22 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
 }
 
-// Load API key from environment variable or local.properties (do NOT commit local.properties)
+// Load local configuration from environment variables or the ignored local.properties file.
 val localPropsFile = rootProject.file("local.properties")
 val localProps = Properties()
 if (localPropsFile.exists()) {
     localPropsFile.inputStream().use { localProps.load(it) }
 }
-val serpApiKey: String = System.getenv("SERP_API_KEY") ?: localProps.getProperty("SERP_API_KEY") ?: ""
+
+fun localConfig(name: String): String =
+    System.getenv(name) ?: localProps.getProperty(name).orEmpty()
+
+fun String.asBuildConfigString(): String =
+    "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
+val serpApiKey = localConfig("SERP_API_KEY")
+val supabaseUrl = localConfig("SUPABASE_URL")
+val supabaseAnonKey = localConfig("SUPABASE_ANON_KEY")
 
 android {
     namespace = "com.example.apptravelfood"
@@ -31,8 +40,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // Expose the Serp/Maps API key to the app via BuildConfig at compile time
-        buildConfigField("String", "SERP_API_KEY", "\"${serpApiKey}\"")
+        buildConfigField("String", "SERP_API_KEY", serpApiKey.asBuildConfigString())
+        buildConfigField("String", "SUPABASE_URL", supabaseUrl.asBuildConfigString())
+        buildConfigField("String", "SUPABASE_ANON_KEY", supabaseAnonKey.asBuildConfigString())
     }
 
     buildTypes {

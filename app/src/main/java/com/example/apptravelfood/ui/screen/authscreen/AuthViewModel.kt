@@ -205,7 +205,7 @@ class AuthViewModel(
                     email = state.email,
                     isRegisterMode = false,
                     registerSuccess = true,
-                    error = "Đăng ký thành công. Hãy đăng nhập."
+                    error = null
                 )
 
             } catch (e: Exception) {
@@ -312,7 +312,6 @@ class AuthViewModel(
                     firebaseRepository.backupUser(user)
                 }
                 Log.d("GOOGLE_LOGIN", "Start sync")
-                syncRepository.syncAfterLogin(email)
                 val syncUserId =
                     syncRepository.syncAfterLogin(email)
 

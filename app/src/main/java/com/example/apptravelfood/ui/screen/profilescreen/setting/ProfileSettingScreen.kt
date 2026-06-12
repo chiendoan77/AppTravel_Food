@@ -6,7 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -26,7 +25,14 @@ import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSurfaceSoft
 import com.example.apptravelfood.ui.screen.profilescreen.ProfileUiState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,12 +70,15 @@ fun ProfileSettingScreen(
     var otpSent by remember {
         mutableStateOf(false)
     }
+    var selectedAvatarUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
     val galleryLauncher =
         rememberLauncherForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
             if (uri != null) {
-                onAvatarSelected(uri)
+                selectedAvatarUri = uri
             }
         }
 
@@ -80,7 +89,7 @@ fun ProfileSettingScreen(
                 title = { Text("Cài đặt tài khoản") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
                 }
             )
@@ -105,6 +114,20 @@ fun ProfileSettingScreen(
                             text = "Thông tin cá nhân",
                             style = MaterialTheme.typography.titleMedium
                         )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = selectedAvatarUri ?: user?.avatarUrl,
+                                contentDescription = "Ảnh đại diện",
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
@@ -135,16 +158,22 @@ fun ProfileSettingScreen(
                             onValueChange = { phone = it },
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("Số điện thoại") },
-                            leadingIcon = { Icon(Icons.Default.Phone, null) }
+                            leadingIcon = { Icon(Icons.Default.Phone, null) },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Phone
+                            )
                         )
 
                         Spacer(modifier = Modifier.height(14.dp))
 
                         Button(
                             onClick = {
-                                user?.userId?.let {
-                                    onUpdateName(name)
-                                    onUpdatePhone(phone)
+                                onUpdateName(name)
+                                onUpdatePhone(phone)
+
+                                selectedAvatarUri?.let { uri ->
+                                    onAvatarSelected(uri)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
@@ -241,20 +270,6 @@ fun ProfileSettingScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        Button(
-                            onClick = {
-                                if (password.isNotBlank()) {
-                                    onUpdatePassword(password)
-                                    password = ""
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Icon(Icons.Default.Lock, null)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Đổi mật khẩu")
-                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically

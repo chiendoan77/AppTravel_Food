@@ -10,6 +10,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.apptravelfood.core.constant.AppConstant
@@ -204,7 +205,8 @@ fun AppNav(
                     factory = ProfileViewModelFactory(
                         userRepository = AppContainer.userRepository,
                         firebaseRepository = AppContainer.firebaseRepository,
-                        otpRepository = AppContainer.otpRepository
+                        otpRepository = AppContainer.otpRepository,
+                        supabaseStorageRepository = AppContainer.supabaseStorageRepository
                     )
                 )
 
@@ -257,7 +259,8 @@ fun AppNav(
                     factory = AddFoodStoreViewModelFactory(
                         foodStoreRepository = AppContainer.foodStoreRepository,
                         firebaseRepository = AppContainer.firebaseRepository,
-                        addressRepository = AppContainer.addressRepository
+                        addressRepository = AppContainer.addressRepository,
+                        supabaseStorageRepository = AppContainer.supabaseStorageRepository
                     )
                 )
 
@@ -284,7 +287,8 @@ fun AppNav(
                 val addFoodItemViewModel: AddFoodItemViewModel = viewModel(
                     factory = AddFoodItemViewModelFactory(
                         foodItemRepository = AppContainer.foodItemRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        supabaseStorageRepository = AppContainer.supabaseStorageRepository
                     )
                 )
 
@@ -333,10 +337,12 @@ fun AppNav(
                     factory = ProfileViewModelFactory(
                         userRepository = AppContainer.userRepository,
                         firebaseRepository = AppContainer.firebaseRepository,
-                        otpRepository = AppContainer.otpRepository
+                        otpRepository = AppContainer.otpRepository,
+                        supabaseStorageRepository = AppContainer.supabaseStorageRepository
                     )
                 )
 
+                val context = LocalContext.current
                 val uiState by profileViewModel.uiState.collectAsState()
                 val userId = loggedUserId ?: return@composable
 
@@ -366,6 +372,7 @@ fun AppNav(
                     },
                     onAvatarSelected = { uri ->
                         profileViewModel.updateAvatar(
+                            context = context,
                             userId = userId,
                             imageUri = uri
                         )
@@ -379,7 +386,8 @@ fun AppNav(
                             otp = otp,
                             newPassword = newPassword
                         )
-                    }
+                    },
+
                     )
             }
             composable(AppRoute.TERMS) {

@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.food.addfoodstorescreen
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,7 +8,10 @@ import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.repository.AddressRepository
 import com.example.apptravelfood.data.repository.FoodStoreRepository
+import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 import com.example.apptravelfood.domain.model.AddressSuggestion
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -15,9 +19,11 @@ import kotlinx.coroutines.launch
 class AddFoodStoreViewModel(
     private val foodStoreRepository: FoodStoreRepository,
     private val firebaseRepository: FirebaseRepository,
-    private val addressRepository: AddressRepository
+    private val addressRepository: AddressRepository,
+    private val supabaseStorageRepository: SupabaseStorageRepository
 ) : ViewModel() {
 
+    private var addressSearchJob: Job? = null
     private val _uiState = MutableStateFlow(AddFoodStoreUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -39,6 +45,7 @@ class AddFoodStoreViewModel(
     }
 
     fun saveFoodStore(
+        context: Context,
         placeId: String,
         userId: Long
     ) {
@@ -85,9 +92,10 @@ class AddFoodStoreViewModel(
 
                 if (state.localImageUri != null) {
                     finalImageUrl =
-                        firebaseRepository.uploadFoodStoreImage(
+                        supabaseStorageRepository.uploadFoodStoreImage(
                             foodStoreId = newId,
-                            imageUri = state.localImageUri
+                            imageUri = state.localImageUri,
+                            context = context
                         )
                 }
 
@@ -120,14 +128,37 @@ class AddFoodStoreViewModel(
         }
     }
     fun updateAddress(value: String) {
-        _uiState.value = _uiState.value.copy(address = value)
+        _uiState.value = _uiState.value.copy(
+            address = value
+        )
 
-        if (value.length >= 3) {
-            searchAddressSuggestions(value)
-        } else {
+        addressSearchJob?.cancel()
+
+        if (value.trim().length < 12) {
             _uiState.value = _uiState.value.copy(
-                addressSuggestions = emptyList()
+                isSearchingAddress = false
             )
+            return
+        }
+
+        addressSearchJob = viewModelScope.launch {
+            delay(500)
+
+            val state = _uiState.value
+
+            val query = buildString {
+                append(state.address.trim())
+
+                if (!state.currentCity.isNullOrBlank()) {
+                    append(", ${state.currentCity}")
+                }
+
+                if (!state.currentProvince.isNullOrBlank()) {
+                    append(", ${state.currentProvince}")
+                }
+            }
+
+            searchAddressSuggestions(query)
         }
     }
 
@@ -170,7 +201,9 @@ class AddFoodStoreViewModel(
     fun updateCurrentLocationSafe(
         address: String?,
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        city: String? = null,
+        province: String? = null
     ) {
         _uiState.value = _uiState.value.copy(
             address = address
@@ -178,6 +211,8 @@ class AddFoodStoreViewModel(
                 ?: "Vị trí hiện tại: $latitude, $longitude",
             latitude = latitude,
             longitude = longitude,
+            currentCity = city,
+            currentProvince = province,
             addressSuggestions = emptyList()
         )
     }

@@ -12,6 +12,7 @@ import com.example.apptravelfood.data.repository.FoodStoreReviewRepository
 import com.example.apptravelfood.data.repository.OtpRepository
 import com.example.apptravelfood.data.repository.PlaceRepositoryLocal
 import com.example.apptravelfood.data.repository.PointHistoryRepository
+import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 import com.example.apptravelfood.data.repository.SyncRepository
 import com.example.apptravelfood.data.repository.UserRepository
 import kotlin.getValue
@@ -92,5 +93,8 @@ object AppContainer {
         OtpRepository(
             RetrofitClient.authApi
         )
+    }
+    val supabaseStorageRepository: SupabaseStorageRepository by lazy {
+        SupabaseStorageRepository()
     }
 }

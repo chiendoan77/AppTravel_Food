@@ -12,6 +12,9 @@ data class AddFoodStoreUiState(
     val latitude: Double? = null,
     val longitude: Double? = null,
 
+    val currentCity: String? = null,
+    val currentProvince: String? = null,
+
     val addressSuggestions: List<AddressSuggestion> = emptyList(),
 
     val localImageUri: Uri? = null,

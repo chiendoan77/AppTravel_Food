@@ -16,8 +16,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.apptravelfood.ui.components.AppGreen
 import com.example.apptravelfood.ui.components.AppPageSurface
@@ -35,6 +38,7 @@ fun AddFoodItemRoute(
     onBack: () -> Unit,
     onSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(editFoodItem?.foodItemId) {
@@ -58,7 +62,7 @@ fun AddFoodItemRoute(
         onPriceChange = viewModel::updatePrice,
         onImageUrlChange = viewModel::updateImageUrl,
         onSaveClick = {
-            viewModel.saveFoodItem(store.foodStoreId)
+            viewModel.saveFoodItem(context, store.foodStoreId)
         },
         onDeleteClick = {
             viewModel.deleteFoodItem(
@@ -110,6 +114,8 @@ fun AddFoodItemScreen(
         AppPageSurface(modifier = Modifier.padding(padding)) {
             Column(
                 modifier = Modifier.fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -148,7 +154,8 @@ fun AddFoodItemScreen(
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = AppGreen
                     ),
-                    border = BorderStroke(1.dp, AppGreen)
+                    border = BorderStroke(1.dp, AppGreen),
+
                 ) {
                     Text("Chọn ảnh món từ thư viện")
                 }
@@ -196,17 +203,6 @@ fun AddFoodItemScreen(
                 )
 
                 Spacer(modifier = Modifier.height(10.dp))
-
-                OutlinedTextField(
-                    value = uiState.imageUrl,
-                    onValueChange = onImageUrlChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Link hình ảnh món") },
-                    leadingIcon = {
-                        Icon(Icons.Default.Image, null)
-                    },
-                    singleLine = true
-                )
 
                 Spacer(modifier = Modifier.height(10.dp))
 

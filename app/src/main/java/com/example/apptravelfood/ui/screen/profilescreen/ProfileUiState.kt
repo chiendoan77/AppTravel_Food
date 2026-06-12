@@ -5,6 +5,7 @@ import com.example.apptravelfood.data.local.entity.UserEntity
 data class ProfileUiState(
     val isLoading: Boolean = false,
     val user: UserEntity? = null,
+    val phone: String = "",
     val error: String? = null,
 
     val totalCheckin: Int = 0,

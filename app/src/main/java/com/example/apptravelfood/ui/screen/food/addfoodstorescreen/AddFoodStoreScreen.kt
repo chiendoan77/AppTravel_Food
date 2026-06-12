@@ -36,8 +36,12 @@ import com.example.apptravelfood.domain.model.AddressSuggestion
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.layout.ContentScale
 import androidx.core.content.ContextCompat
+import coil3.compose.AsyncImage
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -96,12 +100,32 @@ fun AddFoodStoreRoute(
         place = place,
         onBack = onBack,
         onNameChange = viewModel::updateName,
-        onAddressChange = viewModel::updateAddress,
+        onAddressChange = { value ->
+
+            viewModel.updateAddress(value)
+
+            if (value.trim().length == 12) {
+
+                val permission = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+
+                if (permission == PackageManager.PERMISSION_GRANTED) {
+                    getCurrentAddress()
+                } else {
+                    locationPermissionLauncher.launch(
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    )
+                }
+            }
+        },
         onDescriptionChange = viewModel::updateDescription,
         onSaveClick = {
             val placeId = place.place_id ?: return@AddFoodStoreScreen
 
             viewModel.saveFoodStore(
+                context = context,
                 placeId = placeId,
                 userId = userId
             )
@@ -139,6 +163,9 @@ fun AddFoodStoreScreen(
     onAddressSuggestionClick: (AddressSuggestion) -> Unit,
     onUseCurrentLocationClick: () -> Unit
 ) {
+    var addressFocused by remember {
+        mutableStateOf(false)
+    }
     val imagePicker =
         rememberLauncherForActivityResult(
             ActivityResultContracts.GetContent()
@@ -214,6 +241,22 @@ fun AddFoodStoreScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Chọn ảnh quán")
             }
+                if (uiState.localImageUri != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp)
+                    ) {
+                        AsyncImage(
+                            model = uiState.localImageUri,
+                            contentDescription = "Ảnh quán preview",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                        )
+                    }
+                }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -228,14 +271,18 @@ fun AddFoodStoreScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            OutlinedTextField(
-                value = uiState.address,
-                onValueChange = onAddressChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Địa chỉ quán") },
-                leadingIcon = { Icon(Icons.Default.LocationOn, null) },
-                minLines = 2
-            )
+                OutlinedTextField(
+                    value = uiState.address,
+                    onValueChange = onAddressChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged {
+                            addressFocused = it.isFocused
+                        },
+                    label = { Text("Địa chỉ quán") },
+                    leadingIcon = { Icon(Icons.Default.LocationOn, null) },
+                    minLines = 2
+                )
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -260,43 +307,38 @@ fun AddFoodStoreScreen(
                 )
             }
 
-            if (uiState.addressSuggestions.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
+                if (addressFocused && uiState.addressSuggestions.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(3.dp)
-                ) {
-                    Column {
-                        uiState.addressSuggestions.forEach { suggestion ->
-                            ListItem(
-                                headlineContent = {
-                                    Text(suggestion.address)
-                                },
-                                supportingContent = {
-                                    Text("GPS: ${suggestion.latitude}, ${suggestion.longitude}")
-                                },
-                                leadingContent = {
-                                    Icon(Icons.Default.LocationOn, null)
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(3.dp)
+                    ) {
+                        Column {
+                            uiState.addressSuggestions.forEach { suggestion ->
+                                ListItem(
+                                    headlineContent = {
+                                        Text(suggestion.address)
+                                    },
+                                    supportingContent = {
+                                        Text("GPS: ${suggestion.latitude}, ${suggestion.longitude}")
+                                    },
+                                    leadingContent = {
+                                        Icon(Icons.Default.LocationOn, null)
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            onAddressSuggestionClick(suggestion)
+                                        }
+                                )
 
-                            TextButton(
-                                onClick = {
-                                    onAddressSuggestionClick(suggestion)
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Chọn địa chỉ này")
+                                HorizontalDivider()
                             }
-
-                            HorizontalDivider()
                         }
                     }
                 }
-            }
 
             Spacer(modifier = Modifier.height(10.dp))
 

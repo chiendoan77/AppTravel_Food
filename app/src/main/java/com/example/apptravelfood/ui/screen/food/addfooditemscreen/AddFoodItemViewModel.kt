@@ -1,18 +1,21 @@
 package com.example.apptravelfood.ui.screen.food.addfooditemscreen
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.repository.FoodItemRepository
+import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AddFoodItemViewModel(
     private val foodItemRepository: FoodItemRepository,
-    private val firebaseRepository: FirebaseRepository
+    private val firebaseRepository: FirebaseRepository,
+    private val supabaseStorageRepository: SupabaseStorageRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddFoodItemUiState())
@@ -45,7 +48,7 @@ class AddFoodItemViewModel(
         _uiState.value = _uiState.value.copy(imageUrl = value)
     }
 
-    fun saveFoodItem(foodStoreId: Long) {
+    fun saveFoodItem(context: Context, foodStoreId: Long) {
         val state = _uiState.value
 
         if (state.name.isBlank()) {
@@ -109,9 +112,10 @@ class AddFoodItemViewModel(
 
                     if (state.localImageUri != null) {
                         finalImageUrl =
-                            firebaseRepository.uploadFoodItemImage(
+                            supabaseStorageRepository.uploadFoodItemImage(
                                 foodItemId = newId,
-                                imageUri = state.localImageUri
+                                imageUri = state.localImageUri,
+                                context = context
                             )
                     }
 
@@ -119,7 +123,7 @@ class AddFoodItemViewModel(
                         foodItemId = newId,
                         imageUrl = finalImageUrl
                     )
-
+                    foodItemRepository.updateFoodItem(itemWithId)
                     try {
                         firebaseRepository.backupFoodItem(itemWithId)
                     } catch (_: Exception) {

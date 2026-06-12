@@ -16,6 +16,7 @@ object RetrofitClient {
     private const val OTP_BASE_URL =
         "https://webcui-1.onrender.com/"
 
+
     private val logging =
         HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -46,4 +47,5 @@ object RetrofitClient {
             .build()
             .create(AuthApi::class.java)
     }
+
 }

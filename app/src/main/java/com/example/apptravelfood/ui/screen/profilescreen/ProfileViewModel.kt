@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.profilescreen
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.apptravelfood.data.firebase.FirebaseRepository
@@ -13,11 +14,13 @@ import android.util.Log
 import com.example.apptravelfood.core.untils.PasswordUtils
 import com.example.apptravelfood.core.untils.ValidationUtils
 import com.example.apptravelfood.data.repository.OtpRepository
+import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
     private val firebaseRepository: FirebaseRepository,
-    private val otpRepository: OtpRepository
+    private val otpRepository: OtpRepository,
+    private val supabaseStorageRepository: SupabaseStorageRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -84,6 +87,14 @@ class ProfileViewModel(
     }
 
     fun updatePhone(userId: Long, phone: String) {
+        val state = _uiState.value
+
+        if (state.phone.isNotBlank() && !ValidationUtils.isValidPhone(state.phone)) {
+            _uiState.value = state.copy(
+                error = "Số điện thoại phải có 10 số và bắt đầu bằng 0"
+            )
+            return
+        }
         viewModelScope.launch {
             try {
                 userRepository.updatePhone(userId, phone)
@@ -134,6 +145,7 @@ class ProfileViewModel(
     }
 
     fun updateAvatar(
+        context: Context,
         userId: Long,
         imageUri: Uri
     ) {
@@ -145,24 +157,30 @@ class ProfileViewModel(
                 )
 
                 val avatarUrl =
-                    firebaseRepository.uploadUserAvatar(
+                    supabaseStorageRepository.uploadAvatar(
+                        context = context,
                         userId = userId,
                         imageUri = imageUri
                     )
+                Log.d("SUPABASE_UPLOAD", "Start uri=$imageUri")
+                Log.d("SUPABASE_UPLOAD", "Uploaded avatar url=$avatarUrl")
 
-                userRepository.updateAvatar(
-                    userId = userId,
-                    avatarUrl = avatarUrl
+                userRepository.updateAvatar(userId, avatarUrl)
+                _uiState.value = _uiState.value.copy(
+                    user = _uiState.value.user?.copy(
+                        avatarUrl = avatarUrl
+                    ),
+                    isLoading = false,
+                    error = "Cập nhật ảnh thành công"
                 )
 
                 backupUpdatedUser(userId)
-
+                Log.d("SUPABASE_UPLOAD", "Avatar updated successfully")
                 loadUser(userId)
-
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = e.message ?: "Không cập nhật được ảnh đại diện"
+                    error = e.message ?: "Không cập nhật được ảnh"
                 )
             }
         }

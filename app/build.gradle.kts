@@ -23,6 +23,7 @@ fun String.asBuildConfigString(): String =
 val serpApiKey = localConfig("SERP_API_KEY")
 val supabaseUrl = localConfig("SUPABASE_URL")
 val supabaseAnonKey = localConfig("SUPABASE_ANON_KEY")
+val otpBaseUrl = localConfig("OTP_BASE_URL")
 
 android {
     namespace = "com.example.apptravelfood"
@@ -43,6 +44,7 @@ android {
         buildConfigField("String", "SERP_API_KEY", serpApiKey.asBuildConfigString())
         buildConfigField("String", "SUPABASE_URL", supabaseUrl.asBuildConfigString())
         buildConfigField("String", "SUPABASE_ANON_KEY", supabaseAnonKey.asBuildConfigString())
+        buildConfigField("String", "OTP_BASE_URL", otpBaseUrl.asBuildConfigString())
     }
 
     buildTypes {

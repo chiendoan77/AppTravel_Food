@@ -7,6 +7,8 @@ object AppConstant {
 
     val SUPABASE_URL: String = BuildConfig.SUPABASE_URL
     val SUPABASE_ANON_KEY: String = BuildConfig.SUPABASE_ANON_KEY
+    val OTP_BASE_URL: String = BuildConfig.OTP_BASE_URL
+
     private val LOCATION_MAP = mapOf(
         "Huế" to "Hue, Vietnam",
         "Thừa Thiên Huế" to "Hue, Vietnam",

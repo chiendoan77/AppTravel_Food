@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Stars
 import androidx.compose.material3.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -106,7 +108,7 @@ fun AuthRoute(
             }
         },
         onForgotPasswordClick = {
-            viewModel.forgotPassword()
+            viewModel.openForgotPassword()
         },
         onOtpChange = viewModel::updateOtp,
         onNewPasswordChange = viewModel::updateNewPassword,
@@ -116,7 +118,8 @@ fun AuthRoute(
                 newPassword = uiState.newPassword
             )
         },
-        onCancelForgotPassword = viewModel::cancelForgotPassword
+        onCancelForgotPassword = viewModel::cancelForgotPassword,
+        onSendForgotPasswordOtp = viewModel::sendForgotPasswordOtp
     )
 }
 
@@ -136,7 +139,8 @@ fun AuthScreen(
     onOtpChange: (String) -> Unit,
     onNewPasswordChange: (String) -> Unit,
     onResetPasswordClick: () -> Unit,
-    onCancelForgotPassword: () -> Unit
+    onCancelForgotPassword: () -> Unit,
+    onSendForgotPasswordOtp: () -> Unit,
 ) {
     AppPageSurface {
         val pagerState = rememberPagerState(pageCount = { 3 })
@@ -166,6 +170,8 @@ fun AuthScreen(
         ) {
             Column(
                 modifier = Modifier.padding(18.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = if (uiState.isRegisterMode) "Đăng ký" else "Đăng nhập",
@@ -248,69 +254,102 @@ fun AuthScreen(
                             modifier = Modifier.padding(14.dp)
                         ) {
                             Text(
-                                text = "Đặt lại mật khẩu",
+                                text = "Quên mật khẩu",
                                 style = MaterialTheme.typography.titleMedium
                             )
 
                             Spacer(modifier = Modifier.height(6.dp))
 
                             Text(
-                                text = "OTP đã được gửi về email. Nhập OTP và mật khẩu mới để đặt lại.",
+                                text = if (uiState.otpSent) {
+                                    "OTP đã được gửi về email. Nhập OTP và mật khẩu mới."
+                                } else {
+                                    "Nhập email tài khoản của bạn rồi bấm Gửi OTP."
+                                },
                                 style = MaterialTheme.typography.bodySmall
                             )
 
                             Spacer(modifier = Modifier.height(12.dp))
 
                             OutlinedTextField(
-                                value = uiState.otp,
-                                onValueChange = onOtpChange,
+                                value = uiState.email,
+                                onValueChange = onEmailChange,
                                 modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Mã OTP") },
+                                label = { Text("Email nhận OTP") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Email, null)
+                                },
                                 singleLine = true,
+                                enabled = !uiState.otpSent,
                                 keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number
+                                    keyboardType = KeyboardType.Email
                                 )
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
 
-                            OutlinedTextField(
-                                value = uiState.newPassword,
-                                onValueChange = onNewPasswordChange,
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Mật khẩu mới") },
-                                leadingIcon = {
-                                    Icon(Icons.Default.Lock, null)
-                                },
-                                singleLine = true,
-                                visualTransformation = PasswordVisualTransformation(),
-                                keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Password
+                            if (!uiState.otpSent) {
+                                AppAccentButton(
+                                    text = if (uiState.isLoading) {
+                                        "Đang gửi..."
+                                    } else {
+                                        "Gửi OTP"
+                                    },
+                                    onClick = onSendForgotPasswordOtp,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    enabled = !uiState.isLoading
                                 )
-                            )
-
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                    AppAccentOutlinedButton(
-                                        text = "Hủy",
-                                        onClick = onCancelForgotPassword,
-                                        modifier = Modifier.weight(1f)
-                                    )
-
-                                    AppAccentButton(
-                                        text = "Xác nhận",
-                                        onClick = onResetPasswordClick,
-                                        modifier = Modifier.weight(1f),
-                                        enabled = !uiState.isLoading
-                                    )
                             }
+
+                            if (uiState.otpSent) {
+                                OutlinedTextField(
+                                    value = uiState.otp,
+                                    onValueChange = onOtpChange,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    label = { Text("Mã OTP") },
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Number
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                OutlinedTextField(
+                                    value = uiState.newPassword,
+                                    onValueChange = onNewPasswordChange,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    label = { Text("Mật khẩu mới") },
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Lock, null)
+                                    },
+                                    singleLine = true,
+                                    visualTransformation = PasswordVisualTransformation(),
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Password
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                AppAccentButton(
+                                    text = "Xác nhận đổi mật khẩu",
+                                    onClick = onResetPasswordClick,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    enabled = !uiState.isLoading
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            AppAccentOutlinedButton(
+                                text = "Hủy",
+                                onClick = onCancelForgotPassword,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
-
                 if (uiState.registerSuccess) {
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(

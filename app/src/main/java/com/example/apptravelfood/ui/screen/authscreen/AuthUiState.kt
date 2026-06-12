@@ -12,6 +12,7 @@ data class AuthUiState(
     val error: String? = null,
     val registerSuccess: Boolean = false,
     val forgotPasswordMode: Boolean = false,
+    val otpSent: Boolean = false,
     val otp: String = "",
     val newPassword: String = "",
 )

@@ -344,7 +344,7 @@ class AuthViewModel(
             error = message
         )
     }
-    fun forgotPassword() {
+    fun sendForgotPasswordOtp() {
         val email = _uiState.value.email
 
         if (!ValidationUtils.isValidEmail(email)) {
@@ -391,6 +391,7 @@ class AuthViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     forgotPasswordMode = true,
+                    otpSent = response.success,
                     error = response.message
                 )
 
@@ -401,6 +402,15 @@ class AuthViewModel(
                 )
             }
         }
+    }
+    fun openForgotPassword() {
+        _uiState.value = _uiState.value.copy(
+            forgotPasswordMode = true,
+            otpSent = false,
+            otp = "",
+            newPassword = "",
+            error = null
+        )
     }
     fun resetPasswordByOtp(
         otp: String,
@@ -472,6 +482,8 @@ class AuthViewModel(
                 _uiState.value = AuthUiState(
                     email = email,
                     isRegisterMode = false,
+                    forgotPasswordMode = false,
+                    otpSent = false,
                     error = "Đổi mật khẩu thành công. Hãy đăng nhập."
                 )
 
@@ -500,6 +512,7 @@ class AuthViewModel(
     fun cancelForgotPassword() {
         _uiState.value = _uiState.value.copy(
             forgotPasswordMode = false,
+            otpSent = false,
             otp = "",
             newPassword = "",
             error = null

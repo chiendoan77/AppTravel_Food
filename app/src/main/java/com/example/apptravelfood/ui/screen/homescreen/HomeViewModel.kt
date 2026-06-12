@@ -63,27 +63,27 @@ class HomeViewModel(
                             firebaseRepository.getFoodStoresByPlaceId(placeId)
 
                         firebaseStores.forEach { store ->
+                            val safeStore = store.copy(placeId = placeId)
+                            foodStoreRepository.insertFoodStoreReplace(safeStore)
+                        }
 
-                            val safeStore = store.copy(
-                                placeId = placeId
-                            )
+                        // 2. Xóa các quán ở local không còn tồn tại trên Firebase (xử lý trường hợp chủ quán đã xóa)
+                        val localStores = foodStoreRepository.getStoresByPlace(placeId)
+                        val firebaseStoreIds = firebaseStores.map { it.foodStoreId }.toSet()
 
-                            val existed =
-                                foodStoreRepository.getFoodStoreById(
-                                    safeStore.foodStoreId
-                                )
-
-                            if (existed == null) {
-                                foodStoreRepository.insertFoodStoreReplace(
-                                    safeStore
-                                )
+                        localStores.forEach { localStore ->
+                            if (!firebaseStoreIds.contains(localStore.foodStoreId)) {
+                                // Nếu quán do user tạo (createdByUserId > 0) mà không có trên firebase -> đã bị xóa
+                                if (localStore.createdByUserId > 0) {
+                                    foodStoreRepository.deleteFoodStore(localStore)
+                                }
                             }
                         }
 
-                        val stores =
+                        val finalStores =
                             foodStoreRepository.getStoresByPlace(placeId)
 
-                        foodMap[placeId] = stores
+                        foodMap[placeId] = finalStores
                     }
                 }
 

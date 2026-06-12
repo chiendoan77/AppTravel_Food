@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CommentBank
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
@@ -77,6 +78,9 @@ fun FoodStoreDetailRoute(
         },
         onDeleteReviewClick = {
             viewModel.deleteMyReview(userId)
+        },
+        onDeleteStoreClick = {
+            viewModel.deleteFoodStore(onSuccess = onBack)
         }
     )
 }
@@ -90,7 +94,8 @@ fun FoodStoreDetailScreen(
     onRatingChange: (Float) -> Unit,
     onCommentChange: (String) -> Unit,
     onSaveReviewClick: () -> Unit,
-    onDeleteReviewClick: () -> Unit
+    onDeleteReviewClick: () -> Unit,
+    onDeleteStoreClick: () -> Unit
 ) {
     val store = uiState.store
 
@@ -162,7 +167,21 @@ fun FoodStoreDetailScreen(
                 if (uiState.isOwner) {
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    AppSmallTag(text = "Bạn là người đóng góp quán này")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppSmallTag(text = "Bạn là người đóng góp quán này")
+
+                        IconButton(onClick = onDeleteStoreClick) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Xóa quán",
+                                tint = Color.Red
+                            )
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
@@ -267,7 +286,10 @@ fun FoodStoreDetailScreen(
             }
         } else {
             items(uiState.reviews) { review ->
+                val user = uiState.reviewUsers[review.userId]
                 ReviewItem(
+                    userName = user?.fullName ?: "Người dùng",
+                    avatarUrl = user?.avatarUrl,
                     rating = review.rating,
                     comment = review.comment
                 )
@@ -346,6 +368,8 @@ fun FoodItemCard(
 
 @Composable
 fun ReviewItem(
+    userName: String,
+    avatarUrl: String?,
     rating: Float,
     comment: String
 ) {
@@ -364,18 +388,33 @@ fun ReviewItem(
                 shape = CircleShape,
                 color = AppGreenLight
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "U",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = AppGreenStrong
+                if (avatarUrl != null) {
+                    AsyncImage(
+                        model = avatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
+                } else {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = userName.take(1).uppercase(),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = AppGreenStrong
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Column {
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = AppGreenStrong
+                )
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {

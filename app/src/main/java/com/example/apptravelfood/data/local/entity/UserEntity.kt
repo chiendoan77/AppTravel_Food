@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "users")
 data class UserEntity(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     val userId: Long = 0,
 
     val firebaseUid: String? = null,

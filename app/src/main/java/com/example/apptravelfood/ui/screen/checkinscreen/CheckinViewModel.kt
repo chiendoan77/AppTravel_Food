@@ -42,10 +42,9 @@ class CheckinViewModel(
                 val history = checkinRepository.getCheckinsByUser(userId)
                 val user = userRepository.getUser(userId)
 
-                val checkedDays = List(
-                    history
-                        .take(7).size
-                ) { index -> index + 1 }
+                // Lấy số ngày đã điểm danh trong chu kỳ hiện tại (tối đa 7)
+                val checkedCount = history.size % 7
+                val checkedDays = (1..checkedCount).toList()
 
                 _uiState.value = CheckinUiState(
                     isLoading = false,

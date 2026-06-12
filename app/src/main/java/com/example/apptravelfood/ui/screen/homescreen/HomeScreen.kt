@@ -66,34 +66,47 @@ fun HomeScreen(
             }
         }
     }
-
-    val launcher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-
-            if (granted) {
-                Log.d("ABC", "Permission granted")
-                getLocation()
-            } else {
-                Log.d("ABC", "Permission denied")
-            }
-        }
-
-    LaunchedEffect(Unit) {
-        val permissionCheck = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
+    val permissionsToRequest =
+        arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
         )
 
-        if (permissionCheck == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            Log.d("ABC", "Permission already granted")
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionsMap ->
+
+        val locationGranted = permissionsMap[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val notificationGranted = permissionsMap[Manifest.permission.POST_NOTIFICATIONS] == true
+
+        if (locationGranted) {
+            Log.d("!!!NOTI!!!", "Location Permission granted")
             getLocation()
         } else {
-            Log.d("ABC", "Requesting permission")
-            launcher.launch(
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
+            Log.d("!!!NOTI!!!", "Location Permission denied")
+        }
+
+        if (notificationGranted) {
+            Log.d("!!!NOTI!!!", "Notification permission granted")
+        } else {
+            Log.d("!!!NOTI!!!", "Notification permission denied")
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val allPermissionsGranted = permissionsToRequest.all { permission ->
+            ContextCompat.checkSelfPermission(
+                context,
+                permission
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allPermissionsGranted) {
+            Log.d("!!!NOTI!!!", "All Permissions already granted")
+            getLocation()
+        } else {
+            Log.d("!!!NOTI!!!", "Requesting permissions...")
+            launcher.launch(permissionsToRequest)
         }
     }
 

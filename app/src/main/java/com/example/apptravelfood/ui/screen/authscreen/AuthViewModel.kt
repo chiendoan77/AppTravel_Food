@@ -14,6 +14,7 @@ import com.example.apptravelfood.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class AuthViewModel(
     private val userRepository: UserRepository,
@@ -182,7 +183,10 @@ class AuthViewModel(
                     return@launch
                 }
 
+                val newId = System.currentTimeMillis() * 1000 + Random.nextInt(1000)
+
                 val userWithoutId = UserEntity(
+                    userId = newId,
                     fullName = state.fullName.ifBlank { "Người dùng TravelFood" },
                     email = state.email,
                     phone = state.phone.ifBlank { null },
@@ -195,11 +199,10 @@ class AuthViewModel(
 
                 val newUserId =
                     userRepository.createUser(userWithoutId)
+                Log.d("REGISTER", "Local user created with ID: $newUserId")
 
-                val userWithId =
-                    userWithoutId.copy(userId = newUserId)
-
-                firebaseRepository.backupUser(userWithId)
+                firebaseRepository.backupUser(userWithoutId)
+                Log.d("REGISTER", "User backed up to Firebase successfully")
 
                 _uiState.value = AuthUiState(
                     email = state.email,
@@ -289,7 +292,9 @@ class AuthViewModel(
                 }
 
                 if (user == null) {
-                    val userWithoutId = UserEntity(
+                    val newId = System.currentTimeMillis() * 1000 + Random.nextInt(1000)
+                    val userToCreate = UserEntity(
+                        userId = newId,
                         firebaseUid = firebaseUid,
                         fullName = fullName ?: "Người dùng Google",
                         email = email,
@@ -303,11 +308,9 @@ class AuthViewModel(
                     )
 
                     val newUserId =
-                        userRepository.createUser(userWithoutId)
+                        userRepository.createUser(userToCreate)
                     Log.d("GOOGLE_LOGIN", "newUserId=$newUserId")
-                    user = userWithoutId.copy(
-                        userId = newUserId
-                    )
+                    user = userToCreate
 
                     firebaseRepository.backupUser(user)
                 }

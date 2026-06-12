@@ -80,7 +80,8 @@ object AppContainer {
             foodItemRepository = foodItemRepository,
             reviewRepository = foodStoreReviewRepository,
             checkinRepository = checkinRepository,
-            pointHistoryRepository = pointHistoryRepository
+            pointHistoryRepository = pointHistoryRepository,
+            placeRepository = placeRepository
         )
     }
     val addressRepository: AddressRepository by lazy {

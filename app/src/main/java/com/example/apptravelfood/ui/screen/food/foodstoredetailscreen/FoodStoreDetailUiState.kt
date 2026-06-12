@@ -3,6 +3,7 @@ package com.example.apptravelfood.ui.screen.food.foodstoredetailscreen
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreReviewEntity
+import com.example.apptravelfood.data.local.entity.UserEntity
 
 data class FoodStoreDetailUiState(
     val isLoading: Boolean = false,
@@ -10,6 +11,7 @@ data class FoodStoreDetailUiState(
     val store: FoodStoreEntity? = null,
     val foodItems: List<FoodItemEntity> = emptyList(),
     val reviews: List<FoodStoreReviewEntity> = emptyList(),
+    val reviewUsers: Map<Long, UserEntity> = emptyMap(),
 
     val myReview: FoodStoreReviewEntity? = null,
 

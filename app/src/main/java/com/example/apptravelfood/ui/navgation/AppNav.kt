@@ -1,6 +1,8 @@
 package com.example.apptravelfood.ui.navgation
 
+import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -17,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -24,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.apptravelfood.core.constant.AppConstant
 import com.example.apptravelfood.core.di.AppContainer
+import com.example.apptravelfood.core.notification.NotificationForegroundService
+import com.example.apptravelfood.core.session.SessionManager
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
@@ -58,8 +63,11 @@ import com.example.apptravelfood.ui.screen.profilescreen.term.TermsScreen
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNav(
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    initialFoodStoreId: Long? = null,
+    initialReviewId: Long? = null
 ) {
+    val context = LocalContext.current
     val navController = rememberNavController()
 
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
@@ -97,11 +105,46 @@ fun AppNav(
         mutableStateOf(false)
     }
 
+    val sessionManager = remember {
+        SessionManager(context)
+    }
+
     var loggedUserId by rememberSaveable {
-        mutableStateOf<Long?>(null)
+        mutableStateOf<Long?>(sessionManager.getLoggedUserId())
+    }
+
+    // Xử lý deep link từ thông báo khi app đang chạy
+    LaunchedEffect(initialFoodStoreId, initialReviewId) {
+        if (initialFoodStoreId != null && loggedUserId != null) {
+            val store = AppContainer.foodStoreRepository.getFoodStoreById(initialFoodStoreId)
+            if (store != null) {
+                selectedFoodStore = store
+                navController.navigate(AppRoute.FOOD_STORE_DETAIL)
+            }
+        }
+    }
+
+    LaunchedEffect(loggedUserId) {
+        loggedUserId?.let { userId ->
+            Log.d("AppNav", "Starting NotificationForegroundService for userId=$userId")
+            val intent = Intent(
+                context,
+                NotificationForegroundService::class.java
+            ).putExtra("userId", userId)
+
+            ContextCompat.startForegroundService(
+                context,
+                intent
+            )
+        }
     }
 
     val showBottomBar = currentRoute != AppRoute.AUTH
+
+
+
+
+
 
     Scaffold(
         bottomBar = {
@@ -126,7 +169,7 @@ fun AppNav(
 
         NavHost(
             navController = navController,
-            startDestination = AppRoute.AUTH,
+            startDestination = if (loggedUserId != null) AppRoute.HOME else AppRoute.AUTH,
             modifier = Modifier.padding(padding)
         ) {
             composable(AppRoute.HOME) {
@@ -229,7 +272,17 @@ fun AppNav(
                         navController.navigate(AppRoute.TERMS)
                     },
                     onLogoutClick = {
-                        showLogoutDialog = true
+                        showLogoutDialog = false
+                        loggedUserId = null
+                        sessionManager.logout()
+
+                        context.stopService(
+                            Intent(context, NotificationForegroundService::class.java)
+                        )
+
+                        navController.navigate(AppRoute.AUTH) {
+                            popUpTo(0)
+                        }
                     }
                 )
             }
@@ -237,8 +290,10 @@ fun AppNav(
                 val foodStoreDetailViewModel: FoodStoreDetailViewModel = viewModel(
                     factory = FoodStoreDetailViewModelFactory(
                         foodItemRepository = AppContainer.foodItemRepository,
+                        foodStoreRepository = AppContainer.foodStoreRepository,
                         reviewRepository = AppContainer.foodStoreReviewRepository,
-                        firebaseRepository = AppContainer.firebaseRepository
+                        firebaseRepository = AppContainer.firebaseRepository,
+                        userRepository = AppContainer.userRepository
                     )
                 )
 
@@ -332,6 +387,7 @@ fun AppNav(
                     viewModel = authViewModel,
                     onLoginSuccess = { userId ->
                         loggedUserId = userId
+                        sessionManager.saveLogin(userId)
 
                         navController.navigate(AppRoute.HOME) {
                             popUpTo(AppRoute.AUTH) {
@@ -424,6 +480,11 @@ fun AppNav(
                         onClick = {
                             showLogoutDialog = false
                             loggedUserId = null
+                            sessionManager.logout()
+
+                            context.stopService(
+                                Intent(context, NotificationForegroundService::class.java)
+                            )
 
                             navController.navigate(AppRoute.AUTH) {
                                 popUpTo(0)

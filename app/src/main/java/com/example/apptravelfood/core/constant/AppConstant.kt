@@ -16,6 +16,7 @@ object AppConstant {
         "Hà Nội" to "Hanoi, Vietnam",
         "Gia Lai" to "Quy Nhon, Binh Djinh, Vietnam"
     )
+
     fun getLocationFromProvince(
         province: String?
     ): String {

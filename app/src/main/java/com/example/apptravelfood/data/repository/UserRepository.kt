@@ -9,6 +9,7 @@ class UserRepository(
     suspend fun insertUserReplace(user: UserEntity): Long {
         return userDao.insertUserReplace(user)
     }
+
     suspend fun createUser(user: UserEntity): Long {
         return userDao.insertUser(user)
     }
@@ -32,9 +33,11 @@ class UserRepository(
     suspend fun addPoint(userId: Long, point: Int) {
         userDao.addPoint(userId, point)
     }
+
     suspend fun getUserByEmail(email: String): UserEntity? {
         return userDao.getUserByEmail(email)
     }
+
     suspend fun updateBiometricEnabled(
         userId: Long,
         enabled: Boolean
@@ -44,6 +47,7 @@ class UserRepository(
             enabled = enabled
         )
     }
+
     suspend fun updateAvatar(
         userId: Long,
         avatarUrl: String

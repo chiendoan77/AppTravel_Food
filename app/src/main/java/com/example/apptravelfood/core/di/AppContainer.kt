@@ -2,8 +2,8 @@ package com.example.apptravelfood.core.di
 
 import com.example.apptravelfood.core.network.RetrofitClient
 import com.example.apptravelfood.data.firebase.FirebaseAuthRepository
-import com.example.apptravelfood.data.local.database.AppDatabase
 import com.example.apptravelfood.data.firebase.FirebaseRepository
+import com.example.apptravelfood.data.local.database.AppDatabase
 import com.example.apptravelfood.data.repository.AddressRepository
 import com.example.apptravelfood.data.repository.CheckinRepository
 import com.example.apptravelfood.data.repository.FoodItemRepository
@@ -15,7 +15,6 @@ import com.example.apptravelfood.data.repository.PointHistoryRepository
 import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 import com.example.apptravelfood.data.repository.SyncRepository
 import com.example.apptravelfood.data.repository.UserRepository
-import kotlin.getValue
 
 object AppContainer {
 
@@ -24,6 +23,7 @@ object AppContainer {
     val firebaseRepository: FirebaseRepository by lazy {
         FirebaseRepository()
     }
+
     fun init(
         database: AppDatabase
     ) {

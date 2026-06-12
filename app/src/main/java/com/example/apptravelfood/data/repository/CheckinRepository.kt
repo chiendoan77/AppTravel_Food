@@ -22,6 +22,7 @@ class CheckinRepository(
             endOfDay = endOfDay
         )
     }
+
     suspend fun getCheckinById(checkinId: Long): CheckinEntity? {
         return checkinDao.getCheckinById(checkinId)
     }

@@ -1,7 +1,6 @@
 package com.example.apptravelfood.core.untils
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Looper
 import android.util.Log

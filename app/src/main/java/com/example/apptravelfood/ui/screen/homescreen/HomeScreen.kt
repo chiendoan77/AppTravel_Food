@@ -6,7 +6,10 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,18 +18,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.example.apptravelfood.core.untils.LocationHelper
+import com.example.apptravelfood.core.untils.getAddressFromLocation
+import com.example.apptravelfood.data.local.entity.FoodStoreEntity
+import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
-import com.example.apptravelfood.core.untils.getAddressFromLocation
-import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.AppSearchBar
 import com.example.apptravelfood.ui.components.PlaceItem
-import com.example.apptravelfood.data.local.entity.FoodStoreEntity
-import com.example.apptravelfood.ui.navgation.AppRoute
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable

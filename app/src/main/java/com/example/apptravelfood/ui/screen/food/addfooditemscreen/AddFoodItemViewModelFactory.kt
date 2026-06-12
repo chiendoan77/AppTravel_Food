@@ -16,7 +16,7 @@ class AddFoodItemViewModelFactory(
         return AddFoodItemViewModel(
             foodItemRepository = foodItemRepository,
             firebaseRepository = firebaseRepository,
-                supabaseStorageRepository = supabaseStorageRepository
+            supabaseStorageRepository = supabaseStorageRepository
         ) as T
     }
 }

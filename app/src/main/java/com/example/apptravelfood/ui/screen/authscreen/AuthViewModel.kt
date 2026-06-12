@@ -344,6 +344,7 @@ class AuthViewModel(
             error = message
         )
     }
+
     fun sendForgotPasswordOtp() {
         val email = _uiState.value.email
 
@@ -403,6 +404,7 @@ class AuthViewModel(
             }
         }
     }
+
     fun openForgotPassword() {
         _uiState.value = _uiState.value.copy(
             forgotPasswordMode = true,
@@ -412,6 +414,7 @@ class AuthViewModel(
             error = null
         )
     }
+
     fun resetPasswordByOtp(
         otp: String,
         newPassword: String
@@ -495,6 +498,7 @@ class AuthViewModel(
             }
         }
     }
+
     fun updateOtp(value: String) {
         _uiState.value = _uiState.value.copy(
             otp = value,

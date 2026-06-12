@@ -41,11 +41,13 @@ interface UserDao {
         userId: Long,
         enabled: Boolean
     )
+
     @Query("UPDATE users SET avatarUrl = :avatarUrl WHERE userId = :userId")
     suspend fun updateAvatar(
         userId: Long,
         avatarUrl: String
     )
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUserReplace(user: UserEntity): Long
 }

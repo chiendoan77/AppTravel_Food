@@ -1,20 +1,20 @@
 package com.example.apptravelfood.ui.screen.profilescreen
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.core.untils.PasswordUtils
+import com.example.apptravelfood.core.untils.ValidationUtils
 import com.example.apptravelfood.data.firebase.FirebaseRepository
+import com.example.apptravelfood.data.repository.OtpRepository
+import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 import com.example.apptravelfood.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import android.net.Uri
-import android.util.Log
-import com.example.apptravelfood.core.untils.PasswordUtils
-import com.example.apptravelfood.core.untils.ValidationUtils
-import com.example.apptravelfood.data.repository.OtpRepository
-import com.example.apptravelfood.data.repository.SupabaseStorageRepository
 
 class ProfileViewModel(
     private val userRepository: UserRepository,
@@ -185,6 +185,7 @@ class ProfileViewModel(
             }
         }
     }
+
     fun sendPasswordOtp(userId: Long) {
         viewModelScope.launch {
             try {
@@ -205,7 +206,7 @@ class ProfileViewModel(
                 }
 
                 otpRepository.sendOtp(user.email)
-                Log.d("a","success=\${response.success}, message=\${response.message}")
+                Log.d("a", "success=\${response.success}, message=\${response.message}")
 
                 _uiState.value = _uiState.value.copy(
                     error = "Đã gửi OTP về email"
@@ -218,6 +219,7 @@ class ProfileViewModel(
             }
         }
     }
+
     fun updatePasswordWithOtp(
         userId: Long,
         otp: String,

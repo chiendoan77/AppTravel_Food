@@ -44,7 +44,8 @@ class CheckinViewModel(
 
                 val checkedDays = List(
                     history
-                        .take(7).size) { index -> index + 1 }
+                        .take(7).size
+                ) { index -> index + 1 }
 
                 _uiState.value = CheckinUiState(
                     isLoading = false,
@@ -223,6 +224,7 @@ class CheckinViewModel(
             set(Calendar.MILLISECOND, 999)
         }.timeInMillis
     }
+
     fun showError(message: String) {
         _uiState.value = _uiState.value.copy(
             isLoading = false,

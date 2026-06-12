@@ -59,6 +59,7 @@ fun getAddressFromLocation(
         }
     )
 }
+
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 fun getFullAddressFromLocation(
     context: Context,

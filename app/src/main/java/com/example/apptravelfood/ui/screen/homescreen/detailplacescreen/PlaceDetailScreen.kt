@@ -1,31 +1,43 @@
 package com.example.apptravelfood.ui.screen.homescreen.detailplacescreen
 
 import android.content.Intent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Navigation
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import coil3.compose.AsyncImage
+import com.example.apptravelfood.data.remote.dto.LocalResultsDto
+import com.example.apptravelfood.ui.components.AppGreen
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSmallTag
-import com.example.apptravelfood.ui.components.AppGreen
-import coil3.compose.AsyncImage
-import com.example.apptravelfood.data.remote.dto.LocalResultsDto
-import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -135,6 +147,7 @@ fun PlaceDetailScreen(
         }
     }
 }
+
 @Composable
 fun DetailInfoRow(
     icon: ImageVector,

@@ -1,6 +1,9 @@
 package com.example.apptravelfood.data.local.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.example.apptravelfood.data.local.entity.CheckinEntity
 
 @Dao
@@ -12,12 +15,14 @@ interface CheckinDao {
     @Query("SELECT * FROM checkins WHERE userId = :userId ORDER BY checkinTime DESC")
     suspend fun getCheckinsByUserId(userId: Long): List<CheckinEntity>
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM checkins 
         WHERE userId = :userId 
         AND checkinTime BETWEEN :startOfDay AND :endOfDay
         LIMIT 1
-    """)
+    """
+    )
     suspend fun getTodayCheckin(
         userId: Long,
         startOfDay: Long,

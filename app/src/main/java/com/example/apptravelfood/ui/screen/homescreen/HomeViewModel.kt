@@ -2,10 +2,10 @@ package com.example.apptravelfood.ui.screen.homescreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.apptravelfood.data.local.entity.FoodStoreEntity
-import com.example.apptravelfood.data.local.entity.PlaceEntity
 import com.example.apptravelfood.core.constant.AppConstant
 import com.example.apptravelfood.data.firebase.FirebaseRepository
+import com.example.apptravelfood.data.local.entity.FoodStoreEntity
+import com.example.apptravelfood.data.local.entity.PlaceEntity
 import com.example.apptravelfood.data.repository.FoodStoreRepository
 import com.example.apptravelfood.data.repository.PlaceRepository
 import com.example.apptravelfood.data.repository.PlaceRepositoryLocal

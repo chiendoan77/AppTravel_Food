@@ -3,6 +3,7 @@ package com.example.apptravelfood.data.remote.dto
 data class SerpResponseDto(
     val local_results: List<LocalResultsDto>
 )
+
 data class GpsCoordinatesDto(
     val latitude: Double,
     val longitude: Double

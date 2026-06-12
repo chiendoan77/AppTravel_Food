@@ -119,6 +119,7 @@ class SyncRepository(
             }
         }
     }
+
     suspend fun syncAfterLoginByUserId(userId: Long) {
         syncCheckins(userId)
         syncPointHistory(userId)

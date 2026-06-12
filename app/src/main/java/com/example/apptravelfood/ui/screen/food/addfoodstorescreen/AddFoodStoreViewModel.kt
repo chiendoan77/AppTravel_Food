@@ -30,6 +30,7 @@ class AddFoodStoreViewModel(
     fun updateName(value: String) {
         _uiState.value = _uiState.value.copy(name = value)
     }
+
     fun updateDescription(value: String) {
         _uiState.value = _uiState.value.copy(description = value)
     }
@@ -127,6 +128,7 @@ class AddFoodStoreViewModel(
             }
         }
     }
+
     fun updateAddress(value: String) {
         _uiState.value = _uiState.value.copy(
             address = value
@@ -172,6 +174,7 @@ class AddFoodStoreViewModel(
             addressSuggestions = emptyList()
         )
     }
+
     private fun searchAddressSuggestions(query: String) {
         viewModelScope.launch {
             try {
@@ -198,6 +201,7 @@ class AddFoodStoreViewModel(
             }
         }
     }
+
     fun updateCurrentLocationSafe(
         address: String?,
         latitude: Double,
@@ -216,6 +220,7 @@ class AddFoodStoreViewModel(
             addressSuggestions = emptyList()
         )
     }
+
     fun setError(message: String) {
         _uiState.value = _uiState.value.copy(error = message)
     }

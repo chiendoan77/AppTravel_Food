@@ -1,10 +1,15 @@
 package com.example.apptravelfood.data.firebase
 
-import com.example.apptravelfood.data.local.entity.*
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
 import android.net.Uri
+import com.example.apptravelfood.data.local.entity.CheckinEntity
+import com.example.apptravelfood.data.local.entity.FoodItemEntity
+import com.example.apptravelfood.data.local.entity.FoodStoreEntity
+import com.example.apptravelfood.data.local.entity.FoodStoreReviewEntity
+import com.example.apptravelfood.data.local.entity.PointHistoryEntity
+import com.example.apptravelfood.data.local.entity.UserEntity
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.tasks.await
 
 class FirebaseRepository {
 
@@ -128,6 +133,7 @@ class FirebaseRepository {
 
         return snapshot.toObjects(PointHistoryEntity::class.java)
     }
+
     suspend fun getFoodStoresByPlaceId(placeId: String): List<FoodStoreEntity> {
         val snapshot = db.collection("food_stores")
             .whereEqualTo("placeId", placeId)
@@ -136,6 +142,7 @@ class FirebaseRepository {
 
         return snapshot.toObjects(FoodStoreEntity::class.java)
     }
+
     suspend fun deleteFoodItem(foodItemId: Long) {
         db.collection("food_items")
             .document(foodItemId.toString())
@@ -181,6 +188,7 @@ class FirebaseRepository {
 
         return ref.downloadUrl.await().toString()
     }
+
     suspend fun getTodayCheckin(
         userId: Long,
         startOfDay: Long,

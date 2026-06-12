@@ -1,8 +1,8 @@
 package com.example.apptravelfood.core.network
 
 import com.example.apptravelfood.core.constant.AppConstant
-import com.example.apptravelfood.data.remote.api.SepriAPI
 import com.example.apptravelfood.data.remote.api.AuthApi
+import com.example.apptravelfood.data.remote.api.SepriAPI
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit

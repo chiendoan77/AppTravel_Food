@@ -1,29 +1,45 @@
 package com.example.apptravelfood.ui.screen.authscreen
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Login
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.FoodBank
 import androidx.compose.material.icons.filled.GMobiledata
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Stars
-import androidx.compose.material3.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,13 +48,11 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.example.apptravelfood.core.untils.BiometricHelper
 import com.example.apptravelfood.core.untils.GoogleAuthHelper
-import com.example.apptravelfood.ui.components.AppGreen
-import com.example.apptravelfood.ui.components.AppGreenLight
-import com.example.apptravelfood.ui.components.AppGreenStrong
-import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppAccentButton
 import com.example.apptravelfood.ui.components.AppAccentOutlinedButton
-import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSurfaceSoft
 import kotlinx.coroutines.launch
 
@@ -152,9 +166,23 @@ fun AuthScreen(
                 .height(230.dp)
         ) { page ->
             when (page) {
-                0 -> IntroPage(Icons.Default.Map, "Khám phá địa điểm", "Tìm khu du lịch, địa điểm nổi bật quanh bạn.")
-                1 -> IntroPage(Icons.Default.FoodBank, "Gợi ý quán ăn", "Xem quán ăn do cộng đồng thêm gần địa điểm.")
-                2 -> IntroPage(Icons.Default.Stars, "Check-in nhận điểm", "Điểm danh mỗi ngày và tích điểm trong app.")
+                0 -> IntroPage(
+                    Icons.Default.Map,
+                    "Khám phá địa điểm",
+                    "Tìm khu du lịch, địa điểm nổi bật quanh bạn."
+                )
+
+                1 -> IntroPage(
+                    Icons.Default.FoodBank,
+                    "Gợi ý quán ăn",
+                    "Xem quán ăn do cộng đồng thêm gần địa điểm."
+                )
+
+                2 -> IntroPage(
+                    Icons.Default.Stars,
+                    "Check-in nhận điểm",
+                    "Điểm danh mỗi ngày và tích điểm trong app."
+                )
             }
         }
 
@@ -169,7 +197,8 @@ fun AuthScreen(
             )
         ) {
             Column(
-                modifier = Modifier.padding(18.dp)
+                modifier = Modifier
+                    .padding(18.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {

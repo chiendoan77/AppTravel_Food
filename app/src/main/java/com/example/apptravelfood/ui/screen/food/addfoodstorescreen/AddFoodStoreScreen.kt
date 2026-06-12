@@ -1,47 +1,66 @@
 package com.example.apptravelfood.ui.screen.food.addfoodstorescreen
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddBusiness
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Store
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import coil3.compose.AsyncImage
 import com.example.apptravelfood.core.untils.LocationHelper
-import com.example.apptravelfood.ui.components.AppGreen
-import com.example.apptravelfood.ui.components.AppGreenStrong
-import com.example.apptravelfood.ui.components.AppPageSurface
-import com.example.apptravelfood.ui.components.AppSurfaceSoft
-import com.example.apptravelfood.ui.components.AppAccentButton
-import com.example.apptravelfood.core.untils.getAddressFromLocation
 import com.example.apptravelfood.core.untils.getFullAddressFromLocation
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.domain.model.AddressSuggestion
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.layout.ContentScale
-import androidx.core.content.ContextCompat
-import coil3.compose.AsyncImage
+import com.example.apptravelfood.ui.components.AppAccentButton
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppPageSurface
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -197,50 +216,50 @@ fun AddFoodStoreScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                elevation = CardDefaults.cardElevation(4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
                 ) {
-                    Text(
-                        text = "Thêm quán gần:",
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Thêm quán gần:",
+                            style = MaterialTheme.typography.labelMedium
+                        )
 
-                    Text(
-                        text = place.title,
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                        Text(
+                            text = place.title,
+                            style = MaterialTheme.typography.titleMedium
+                        )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
 
-                    Text(
-                        text = place.address ?: "Chưa có địa chỉ",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                        Text(
+                            text = place.address ?: "Chưa có địa chỉ",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedButton(
-                onClick = {
-                    imagePicker.launch("image/*")
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = AppGreen
-                ),
-                border = BorderStroke(1.dp, AppGreen)
-            ) {
-                Icon(Icons.Default.Image, null, tint = AppGreen)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Chọn ảnh quán")
-            }
+                OutlinedButton(
+                    onClick = {
+                        imagePicker.launch("image/*")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = AppGreen
+                    ),
+                    border = BorderStroke(1.dp, AppGreen)
+                ) {
+                    Icon(Icons.Default.Image, null, tint = AppGreen)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Chọn ảnh quán")
+                }
                 if (uiState.localImageUri != null) {
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -258,18 +277,18 @@ fun AddFoodStoreScreen(
                     }
                 }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = uiState.name,
-                onValueChange = onNameChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Tên quán ăn") },
-                leadingIcon = { Icon(Icons.Default.Store, null) },
-                singleLine = true
-            )
+                OutlinedTextField(
+                    value = uiState.name,
+                    onValueChange = onNameChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Tên quán ăn") },
+                    leadingIcon = { Icon(Icons.Default.Store, null) },
+                    singleLine = true
+                )
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 OutlinedTextField(
                     value = uiState.address,
@@ -284,28 +303,28 @@ fun AddFoodStoreScreen(
                     minLines = 2
                 )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedButton(
-                onClick = onUseCurrentLocationClick,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = AppGreen
-                ),
-                border = BorderStroke(1.dp, AppGreen)
-            ) {
-                Icon(Icons.Default.LocationOn, null, tint = AppGreen)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Dùng vị trí hiện tại")
-            }
-
-            if (uiState.isSearchingAddress) {
                 Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+
+                OutlinedButton(
+                    onClick = onUseCurrentLocationClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = AppGreen
+                    ),
+                    border = BorderStroke(1.dp, AppGreen)
+                ) {
+                    Icon(Icons.Default.LocationOn, null, tint = AppGreen)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Dùng vị trí hiện tại")
+                }
+
+                if (uiState.isSearchingAddress) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 if (addressFocused && uiState.addressSuggestions.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -340,35 +359,35 @@ fun AddFoodStoreScreen(
                     }
                 }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            OutlinedTextField(
-                value = uiState.description,
-                onValueChange = onDescriptionChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Mô tả quán") },
-                minLines = 3
-            )
-
-            uiState.error?.let {
                 Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error
+
+                OutlinedTextField(
+                    value = uiState.description,
+                    onValueChange = onDescriptionChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Mô tả quán") },
+                    minLines = 3
+                )
+
+                uiState.error?.let {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                AppAccentButton(
+                    text = if (uiState.isSaving) "Đang lưu..." else "Lưu quán ăn",
+                    onClick = onSaveClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    enabled = !uiState.isSaving
                 )
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            AppAccentButton(
-                text = if (uiState.isSaving) "Đang lưu..." else "Lưu quán ăn",
-                onClick = onSaveClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = !uiState.isSaving
-            )
         }
     }
-}
 }

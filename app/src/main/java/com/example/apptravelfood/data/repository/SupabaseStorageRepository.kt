@@ -8,7 +8,7 @@ import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
 import java.util.UUID
 
-class SupabaseStorageRepository{
+class SupabaseStorageRepository {
     private suspend fun uploadImage(
         context: Context,
         bucket: String,

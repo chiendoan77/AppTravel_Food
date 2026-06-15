@@ -1,5 +1,6 @@
 package com.example.apptravelfood.ui.screen.food.foodstoredetailscreen
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.local.entity.FoodItemEntity
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
@@ -98,6 +101,7 @@ fun FoodStoreDetailScreen(
     onDeleteStoreClick: () -> Unit
 ) {
     val store = uiState.store
+    val context = LocalContext.current
 
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -161,6 +165,21 @@ fun FoodStoreDetailScreen(
                     Text(
                         text = it,
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+
+                if (store?.latitude != null && store.longitude != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    AppAccentButton(
+                        text = "Xem trên bản đồ 📍",
+                        onClick = {
+                            val gmmIntentUri =
+                                "google.navigation:q=${store.latitude},${store.longitude}".toUri()
+                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                            mapIntent.setPackage("com.google.android.apps.maps")
+                            context.startActivity(mapIntent)
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
 

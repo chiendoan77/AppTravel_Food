@@ -136,9 +136,16 @@ class AuthViewModel(
     fun register() {
         val state = _uiState.value
 
+        if (state.fullName.isBlank()) {
+            _uiState.value = state.copy(
+                error = "Họ tên không được để trống"
+            )
+            return
+        }
+
         if (!ValidationUtils.isValidEmail(state.email)) {
             _uiState.value = state.copy(
-                error = "Email phải trên 5 ký tự và kết thúc bằng @gmail.com"
+                error = "Email không đúng định dạng"
             )
             return
         }
@@ -353,7 +360,7 @@ class AuthViewModel(
 
         if (!ValidationUtils.isValidEmail(email)) {
             _uiState.value = _uiState.value.copy(
-                error = "Nhập email @gmail.com hợp lệ trước"
+                error = "Vui lòng nhập email hợp lệ"
             )
             return
         }

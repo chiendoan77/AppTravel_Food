@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -110,7 +111,14 @@ fun AddFoodStoreRoute(
         }
     LaunchedEffect(uiState.success) {
         if (uiState.success) {
+            Toast.makeText(context, "Đã lưu quán ăn thành công!", Toast.LENGTH_SHORT).show()
             onSuccess()
+        }
+    }
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -141,11 +149,9 @@ fun AddFoodStoreRoute(
         },
         onDescriptionChange = viewModel::updateDescription,
         onSaveClick = {
-            val placeId = place.place_id ?: return@AddFoodStoreScreen
-
             viewModel.saveFoodStore(
                 context = context,
-                placeId = placeId,
+                place = place,
                 userId = userId
             )
         },

@@ -50,12 +50,76 @@ class ProfileViewModel(
         }
     }
 
+    fun updateProfile(
+        context: Context,
+        userId: Long,
+        name: String,
+        phone: String,
+        avatarUri: Uri?
+    ) {
+        if (name.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Họ tên không được để trống")
+            return
+        }
+
+        if (phone.isNotBlank() && !ValidationUtils.isValidPhone(phone)) {
+            _uiState.value = _uiState.value.copy(
+                error = "Số điện thoại không đúng định dạng (10 số hoặc bắt đầu với +84)"
+            )
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = true,
+                    error = null,
+                    success = null
+                )
+
+                // 1. Update Name
+                userRepository.updateName(userId, name)
+
+                // 2. Update Phone
+                userRepository.updatePhone(userId, phone)
+
+                // 3. Update Avatar if selected
+                if (avatarUri != null) {
+                    val avatarUrl = supabaseStorageRepository.uploadAvatar(
+                        context = context,
+                        userId = userId,
+                        imageUri = avatarUri
+                    )
+                    userRepository.updateAvatar(userId, avatarUrl)
+                }
+
+                backupUpdatedUser(userId)
+                loadUser(userId)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    success = "Cập nhật thông tin thành công"
+                )
+
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message ?: "Cập nhật thất bại"
+                )
+            }
+        }
+    }
+
     fun updateName(userId: Long, name: String) {
+        if (name.isBlank()) {
+            _uiState.value = _uiState.value.copy(error = "Họ tên không được để trống")
+            return
+        }
         viewModelScope.launch {
             try {
                 userRepository.updateName(userId, name)
                 backupUpdatedUser(userId)
                 loadUser(userId)
+                _uiState.value = _uiState.value.copy(success = "Cập nhật tên thành công")
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -77,6 +141,7 @@ class ProfileViewModel(
                 userRepository.updatePassword(userId, PasswordUtils.hash(password))
                 backupUpdatedUser(userId)
                 loadUser(userId)
+                _uiState.value = _uiState.value.copy(success = "Đổi mật khẩu thành công")
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -89,9 +154,9 @@ class ProfileViewModel(
     fun updatePhone(userId: Long, phone: String) {
         val state = _uiState.value
 
-        if (state.phone.isNotBlank() && !ValidationUtils.isValidPhone(state.phone)) {
+        if (phone.isNotBlank() && !ValidationUtils.isValidPhone(phone)) {
             _uiState.value = state.copy(
-                error = "Số điện thoại phải có 10 số và bắt đầu bằng 0"
+                error = "Số điện thoại không đúng định dạng (10 số hoặc bắt đầu với +84)"
             )
             return
         }
@@ -100,6 +165,7 @@ class ProfileViewModel(
                 userRepository.updatePhone(userId, phone)
                 backupUpdatedUser(userId)
                 loadUser(userId)
+                _uiState.value = _uiState.value.copy(success = "Cập nhật số điện thoại thành công")
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -122,6 +188,8 @@ class ProfileViewModel(
 
                 backupUpdatedUser(userId)
                 loadUser(userId)
+                _uiState.value =
+                    _uiState.value.copy(success = if (enabled) "Đã bật đăng nhập vân tay" else "Đã tắt đăng nhập vân tay")
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -171,7 +239,7 @@ class ProfileViewModel(
                         avatarUrl = avatarUrl
                     ),
                     isLoading = false,
-                    error = "Cập nhật ảnh thành công"
+                    success = "Cập nhật ảnh thành công"
                 )
 
                 backupUpdatedUser(userId)
@@ -209,7 +277,7 @@ class ProfileViewModel(
                 Log.d("a", "success=\${response.success}, message=\${response.message}")
 
                 _uiState.value = _uiState.value.copy(
-                    error = "Đã gửi OTP về email"
+                    success = "Đã gửi OTP về email"
                 )
 
             } catch (e: Exception) {
@@ -267,7 +335,7 @@ class ProfileViewModel(
 
                 _uiState.value = _uiState.value.copy(
                     user = updatedUser,
-                    error = "Đổi mật khẩu thành công"
+                    success = "Đổi mật khẩu thành công"
                 )
 
             } catch (e: Exception) {
@@ -276,5 +344,12 @@ class ProfileViewModel(
                 )
             }
         }
+    }
+
+    fun clearStatus() {
+        _uiState.value = _uiState.value.copy(
+            error = null,
+            success = null
+        )
     }
 }

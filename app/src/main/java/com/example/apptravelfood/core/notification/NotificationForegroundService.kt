@@ -10,10 +10,15 @@ import androidx.core.app.NotificationCompat
 import com.example.apptravelfood.R
 import com.example.apptravelfood.core.di.AppContainer
 import com.google.firebase.firestore.ListenerRegistration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class NotificationForegroundService : Service() {
 
     private var listener: ListenerRegistration? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onStartCommand(
         intent: Intent?,
@@ -75,6 +80,11 @@ class NotificationForegroundService : Service() {
                 foodStoreId = item.foodStoreId,
                 reviewId = item.reviewId
             )
+
+            // Đánh dấu đã đọc để không hiện lại khi cài lại app
+            serviceScope.launch {
+                firebaseRepository.markNotificationAsRead(item.notificationId)
+            }
         }
 
         return START_STICKY

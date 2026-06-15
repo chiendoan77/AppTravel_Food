@@ -40,8 +40,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,7 @@ import com.example.apptravelfood.core.untils.GoogleAuthHelper
 import com.example.apptravelfood.ui.components.AppAccentButton
 import com.example.apptravelfood.ui.components.AppAccentOutlinedButton
 import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenLight
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSurfaceSoft
@@ -157,6 +161,29 @@ fun AuthScreen(
     onSendForgotPasswordOtp: () -> Unit,
 ) {
     AppPageSurface {
+        // Branding Header
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Travel & Food",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    brush = Brush.linearGradient(
+                        colors = listOf(AppGreen, AppGreenStrong)
+                    )
+                )
+            )
+            Text(
+                text = "Trải nghiệm ẩm thực và du lịch hoàn hảo",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         val pagerState = rememberPagerState(pageCount = { 3 })
 
         HorizontalPager(
@@ -482,7 +509,11 @@ fun IntroPage(
     Card(
         modifier = Modifier.fillMaxSize(),
         shape = RoundedCornerShape(28.dp),
-        elevation = CardDefaults.cardElevation(5.dp)
+        elevation = CardDefaults.cardElevation(5.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        border = BorderStroke(1.dp, AppGreenLight.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier
@@ -495,21 +526,24 @@ fun IntroPage(
                 imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(58.dp),
-                tint = MaterialTheme.colorScheme.primary
+                tint = AppGreen
             )
 
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                color = AppGreenStrong
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = desc,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = Color.DarkGray
             )
         }
     }

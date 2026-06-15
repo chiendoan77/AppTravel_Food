@@ -51,15 +51,19 @@ class AddFoodItemViewModel(
     fun saveFoodItem(context: Context, foodStoreId: Long) {
         val state = _uiState.value
 
-        if (state.name.isBlank()) {
-            _uiState.value = state.copy(error = "Tên món ăn không được để trống")
+        if (state.name.trim().length < 3) {
+            _uiState.value = state.copy(error = "Tên món ăn phải có ít nhất 3 ký tự")
             return
         }
 
         val priceValue = state.price.toDoubleOrNull()
+        if (priceValue == null || priceValue < 1000) {
+            _uiState.value = state.copy(error = "Giá món ăn không hợp lệ (tối thiểu 1.000đ)")
+            return
+        }
 
-        if (priceValue == null || priceValue < 0) {
-            _uiState.value = state.copy(error = "Giá món ăn không hợp lệ")
+        if (state.description.isNotBlank() && state.description.trim().length < 5) {
+            _uiState.value = state.copy(error = "Mô tả món ăn (nếu có) phải từ 5 ký tự trở lên")
             return
         }
 

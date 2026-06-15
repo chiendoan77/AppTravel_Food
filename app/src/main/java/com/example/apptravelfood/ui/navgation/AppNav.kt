@@ -420,26 +420,19 @@ fun AppNav(
                     onBack = {
                         navController.popBackStack()
                     },
-                    onUpdateName = { name ->
-                        profileViewModel.updateName(userId, name)
-                    },
-                    onUpdatePhone = { phone ->
-                        profileViewModel.updatePhone(userId, phone)
-                    },
-                    onUpdatePassword = { password ->
-                        profileViewModel.updatePassword(userId, password)
+                    onSaveProfile = { name, phone, avatarUri ->
+                        profileViewModel.updateProfile(
+                            context = context,
+                            userId = userId,
+                            name = name,
+                            phone = phone,
+                            avatarUri = avatarUri
+                        )
                     },
                     onUpdateBiometric = { userId, enabled ->
                         profileViewModel.updateBiometricEnabled(
                             userId = userId,
                             enabled = enabled
-                        )
-                    },
-                    onAvatarSelected = { uri ->
-                        profileViewModel.updateAvatar(
-                            context = context,
-                            userId = userId,
-                            imageUri = uri
                         )
                     },
                     onSendPasswordOtp = {
@@ -452,8 +445,10 @@ fun AppNav(
                             newPassword = newPassword
                         )
                     },
-
-                    )
+                    onClearStatus = {
+                        profileViewModel.clearStatus()
+                    }
+                )
             }
             composable(AppRoute.TERMS) {
                 TermsScreen(

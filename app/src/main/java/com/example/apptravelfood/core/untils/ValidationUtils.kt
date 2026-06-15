@@ -3,11 +3,12 @@ package com.example.apptravelfood.core.untils
 object ValidationUtils {
 
     fun isValidEmail(email: String): Boolean {
-        return email.length > 5 && email.endsWith("@gmail.com")
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return email.matches(Regex(emailRegex))
     }
 
     fun isValidPhone(phone: String): Boolean {
-        return phone.matches(Regex("^0\\d{9}$"))
+        return phone.matches(Regex("^(0|\\+84)(\\d{9})$"))
     }
 
     fun isValidPassword(password: String): Boolean {

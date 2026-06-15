@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.apptravelfood.core.untils.DistanceUtils
 import com.example.apptravelfood.data.firebase.FirebaseRepository
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
+import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.data.repository.AddressRepository
 import com.example.apptravelfood.data.repository.FoodStoreRepository
 import com.example.apptravelfood.data.repository.SupabaseStorageRepository
@@ -47,10 +49,11 @@ class AddFoodStoreViewModel(
 
     fun saveFoodStore(
         context: Context,
-        placeId: String,
+        place: LocalResultsDto,
         userId: Long
     ) {
         val state = _uiState.value
+        val placeId = place.place_id
 
         if (state.name.isBlank()) {
             _uiState.value = state.copy(
@@ -64,6 +67,34 @@ class AddFoodStoreViewModel(
                 error = "Địa chỉ quán không được để trống"
             )
             return
+        }
+
+        if (state.latitude == null || state.longitude == null) {
+            _uiState.value = state.copy(
+                error = "Không thể lưu vì thiếu tọa độ GPS. Hãy chọn địa chỉ từ gợi ý hoặc dùng vị trí hiện tại."
+            )
+            return
+        }
+
+        // Validate distance (within 700m from the tourist place)
+        val touristLat = place.gps_coordinates?.latitude
+        val touristLng = place.gps_coordinates?.longitude
+
+        if (touristLat != null && touristLng != null) {
+            val distanceKm = DistanceUtils.calculateDistanceKm(
+                startLat = touristLat,
+                startLng = touristLng,
+                endLat = state.latitude,
+                endLng = state.longitude
+            ) ?: 0.0
+
+            if (distanceKm > 0.7) { // 700m = 0.7km
+                val distanceM = (distanceKm * 1000).toInt()
+                _uiState.value = state.copy(
+                    error = "Quán ăn quá xa địa điểm này ($distanceM m). Chỉ được phép thêm quán trong bán kính 700m."
+                )
+                return
+            }
         }
 
         viewModelScope.launch {

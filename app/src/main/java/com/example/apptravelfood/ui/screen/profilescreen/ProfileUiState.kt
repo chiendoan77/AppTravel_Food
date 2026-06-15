@@ -7,6 +7,7 @@ data class ProfileUiState(
     val user: UserEntity? = null,
     val phone: String = "",
     val error: String? = null,
+    val success: String? = null,
 
     val totalCheckin: Int = 0,
     val totalFavorite: Int = 0,

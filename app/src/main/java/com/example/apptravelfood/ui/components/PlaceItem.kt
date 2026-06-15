@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -31,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.apptravelfood.core.untils.DistanceUtils
 import com.example.apptravelfood.data.local.entity.FoodStoreEntity
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 
@@ -146,8 +146,16 @@ fun PlaceItem(
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(foodStores) { store ->
+                            val distanceKm = DistanceUtils.calculateDistanceKm(
+                                startLat = place.gps_coordinates?.latitude,
+                                startLng = place.gps_coordinates?.longitude,
+                                endLat = store.latitude,
+                                endLng = store.longitude
+                            )
+
                             FoodStoreMiniCard(
                                 store = store,
+                                distance = DistanceUtils.formatDistance(distanceKm),
                                 onClick = {
                                     onFoodStoreClick(store)
                                 }
@@ -163,6 +171,7 @@ fun PlaceItem(
 @Composable
 fun FoodStoreMiniCard(
     store: FoodStoreEntity,
+    distance: String = "",
     onClick: () -> Unit
 ) {
     Card(
@@ -201,6 +210,14 @@ fun FoodStoreMiniCard(
                     color = AppGreen,
                     maxLines = 2
                 )
+
+                if (distance.isNotBlank()) {
+                    Text(
+                        text = "📍 Cách $distance",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = AppGreenStrong
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(4.dp))
 

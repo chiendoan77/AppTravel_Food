@@ -229,9 +229,9 @@ class FirebaseRepository {
     ): ListenerRegistration {
         Log.d("!!!NOTI!!!", "FirebaseRepository: listenUnreadNotifications for userId=$userId")
 
-        // Listen to all notifications for this receiver
         return db.collection("notifications")
             .whereEqualTo("receiverUserId", userId)
+            .whereEqualTo("isRead", false)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     Log.e(
@@ -242,37 +242,29 @@ class FirebaseRepository {
                     return@addSnapshotListener
                 }
 
-                if (snapshot == null) {
-                    Log.d("!!!NOTI!!!", "FirebaseRepository: Snapshot is null")
-                    return@addSnapshotListener
-                }
-
-                Log.d(
-                    "!!!NOTI!!!",
-                    "FirebaseRepository: Received snapshot. Total docs=${snapshot.size()}. Changes=${snapshot.documentChanges.size}"
-                )
+                if (snapshot == null) return@addSnapshotListener
 
                 snapshot.documentChanges.forEach { change ->
                     if (change.type == DocumentChange.Type.ADDED) {
                         val item = change.document
                             .toObject(AppNotificationDto::class.java)
 
-                        Log.d(
-                            "!!!NOTI!!!",
-                            "FirebaseRepository: New doc ADDED: isRead=${item.isRead}, title=${item.title}"
-                        )
-
-                        // Lọc isRead thủ công hoặc giữ query cũ.
-                        // Tạm thời bỏ filter isRead trong query để xem có doc nào về không.
-                        if (!item.isRead) {
-                            Log.d(
-                                "!!!NOTI!!!",
-                                "FirebaseRepository: Notifying about unread item: ${item.notificationId}"
-                            )
-                            onNewNotification(item)
-                        }
+                        onNewNotification(item)
                     }
                 }
             }
+    }
+
+    suspend fun markNotificationAsRead(notificationId: String) {
+        if (notificationId.isBlank()) return
+        try {
+            db.collection("notifications")
+                .document(notificationId)
+                .update("isRead", true)
+                .await()
+            Log.d("FirebaseRepository", "Notification $notificationId marked as read")
+        } catch (e: Exception) {
+            Log.e("FirebaseRepository", "Failed to mark notification as read: ${e.message}")
+        }
     }
 }

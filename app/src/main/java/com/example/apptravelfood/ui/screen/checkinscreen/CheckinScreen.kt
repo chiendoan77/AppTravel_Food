@@ -207,8 +207,11 @@ fun TotalPointCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = com.example.apptravelfood.ui.components.AppSurfaceSoft
+        )
     ) {
         Row(
             modifier = Modifier
@@ -257,8 +260,11 @@ fun BusTicketCheckinCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(30.dp),
-        elevation = CardDefaults.cardElevation(6.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = com.example.apptravelfood.ui.components.AppSurfaceSoft
+        )
     ) {
         Column(
             modifier = Modifier.padding(18.dp)
@@ -344,7 +350,7 @@ fun CheckinWindow(
 ) {
     Card(
         modifier = modifier.height(92.dp),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (checked) {
                 MaterialTheme.colorScheme.primaryContainer

@@ -34,11 +34,19 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-val AppGreen = Color(0xFF2E8C4A)
-val AppGreenLight = Color(0xFFD7F0DC)
-val AppGreenSoft = Color(0xFFF0F7F1)
+val AppGreen = Color(0xFF2E7D32)
+val AppGreenLight = Color(0xFF4CAF50)
+val AppGreenAccent = Color(0xFF66BB6A)
+val AppGreenSoft = Color(0xFFF7FAF7)
 val AppGreenStrong = Color(0xFF1F6F3B)
-val AppSurfaceSoft = Color(0xFFF7FBF6)
+val AppSurfaceSoft = Color(0xFFFFFFFF)
+
+val AppImageShape = RoundedCornerShape(
+    topStart = 8.dp,
+    topEnd = 24.dp,
+    bottomEnd = 8.dp,
+    bottomStart = 24.dp
+)
 
 @Composable
 fun AppPageSurface(
@@ -158,7 +166,7 @@ fun AppGlassCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
             containerColor = AppSurfaceSoft

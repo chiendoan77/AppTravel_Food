@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -61,15 +63,16 @@ fun PlaceItem(
                     model = place.thumbnail_large,
                     contentDescription = place.title,
                     modifier = Modifier
-                        .size(110.dp)
-                        .clip(RoundedCornerShape(18.dp)),
+                        .weight(0.35f)
+                        .aspectRatio(1f)
+                        .clip(AppImageShape),
                     contentScale = ContentScale.Crop
                 )
 
                 Spacer(modifier = Modifier.width(14.dp))
 
                 Column(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(0.65f)
                 ) {
                     Text(
                         text = place.title,
@@ -165,31 +168,46 @@ fun FoodStoreMiniCard(
     Card(
         onClick = onClick,
         modifier = Modifier
-            .width(170.dp)
-            .height(180.dp),
+            .width(240.dp)
+            .height(140.dp),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(
-            containerColor = AppGreenLight
+            containerColor = AppSurfaceSoft
         )
     ) {
-        Column {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             AsyncImage(
                 model = store.imageUrl,
                 contentDescription = store.name,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(90.dp),
+                    .weight(0.4f)
+                    .fillMaxHeight()
+                    .padding(8.dp)
+                    .clip(AppImageShape),
                 contentScale = ContentScale.Crop
             )
 
             Column(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier
+                    .weight(0.6f)
+                    .padding(vertical = 10.dp, horizontal = 8.dp)
             ) {
                 Text(
                     text = store.name,
                     style = MaterialTheme.typography.titleSmall,
-                    maxLines = 1
+                    color = AppGreen,
+                    maxLines = 2
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "⭐ 4.8",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color(0xFFFFC107)
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -197,7 +215,7 @@ fun FoodStoreMiniCard(
                 Text(
                     text = store.address ?: "Chưa có địa chỉ",
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2
+                    maxLines = 1
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -205,7 +223,7 @@ fun FoodStoreMiniCard(
                 Text(
                     text = store.description ?: "Xem menu món ăn",
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1
+                    maxLines = 2
                 )
             }
         }

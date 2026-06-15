@@ -30,19 +30,19 @@ fun FloatingBottomBar(
 ) {
     val navigationItemColors = NavigationBarItemDefaults.colors(
         indicatorColor = Color(0xFFE8F6EA),
-        selectedIconColor = Color(0xFF2E8C4A),
-        unselectedIconColor = Color(0xFF8E9BA5),
-        selectedTextColor = Color(0xFF2E8C4A),
-        unselectedTextColor = Color(0xFF8E9BA5)
+        selectedIconColor = AppGreen,
+        unselectedIconColor = Color(0xFF666666),
+        selectedTextColor = AppGreen,
+        unselectedTextColor = Color(0xFF666666)
     )
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 10.dp),
-        shape = RoundedCornerShape(28.dp),
+            .padding(start = 14.dp, end = 14.dp, bottom = 12.dp),
+        shape = RoundedCornerShape(24.dp),
         color = Color.White,
-        shadowElevation = 10.dp
+        shadowElevation = 16.dp
     ) {
         NavigationBar(
             modifier = Modifier.height(68.dp),

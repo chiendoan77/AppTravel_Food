@@ -17,6 +17,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 
@@ -40,7 +41,9 @@ fun TermsScreen(
 
         AppPageSurface(modifier = Modifier.padding(padding), scrollable = true) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
             ) {
                 Text(
                     text = "Điều khoản TravelFood",
@@ -64,7 +67,7 @@ fun TermsScreen(
 
 6. Dữ liệu có thể bị mất nếu người dùng xóa ứng dụng hoặc xóa dữ liệu local.
                 """.trimIndent(),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp)
                 )
             }
         }

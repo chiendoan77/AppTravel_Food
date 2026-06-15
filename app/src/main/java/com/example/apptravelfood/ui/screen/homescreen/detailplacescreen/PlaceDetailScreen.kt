@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +38,7 @@ import coil3.compose.AsyncImage
 import com.example.apptravelfood.data.remote.dto.LocalResultsDto
 import com.example.apptravelfood.ui.components.AppGreen
 import com.example.apptravelfood.ui.components.AppGreenStrong
+import com.example.apptravelfood.ui.components.AppImageShape
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSmallTag
 
@@ -82,37 +85,50 @@ fun PlaceDetailScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                AsyncImage(
-                    model = place.thumbnail_large,
-                    contentDescription = place.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp),
-                    contentScale = ContentScale.Crop
-                )
-
-                Column(
-                    modifier = Modifier.padding(16.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = place.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = AppGreenStrong
+                    AsyncImage(
+                        model = place.thumbnail_large,
+                        contentDescription = place.title,
+                        modifier = Modifier
+                            .weight(0.4f)
+                            .aspectRatio(1f)
+                            .clip(AppImageShape),
+                        contentScale = ContentScale.Crop
                     )
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        AppSmallTag(text = "${place.rating ?: 0.0} ★")
-                        Text(text = place.rating?.toString() ?: "Chưa có đánh giá")
+                    Column(
+                        modifier = Modifier.weight(0.6f)
+                    ) {
+                        Text(
+                            text = place.title,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = AppGreenStrong
+                        )
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            AppSmallTag(text = "⭐ ${place.rating ?: 0.0}")
+                        }
+                        
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Text(
+                            text = place.type ?: "Địa điểm",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
+                }
 
-                    DetailInfoRow(
-                        icon = Icons.Default.Category,
-                        title = "Kiểu địa điểm",
-                        value = place.type
-                    )
-
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Column(
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
                     DetailInfoRow(
                         icon = Icons.Default.LocationOn,
                         title = "Địa chỉ",

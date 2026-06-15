@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -22,6 +23,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -35,9 +37,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.apptravelfood.ui.components.AppGreen
+import com.example.apptravelfood.ui.components.AppGreenLight
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -146,12 +151,20 @@ fun HistoryCheckinItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(3.dp)
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(containerColor = AppSurfaceSoft)
     ) {
         Row(
-            modifier = Modifier.padding(14.dp)
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null)
+            Surface(
+                shape = CircleShape,
+                color = AppGreenLight,
+                modifier = Modifier.padding(2.dp)
+            ) {
+                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = AppGreen, modifier = Modifier.padding(6.dp))
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 
@@ -193,12 +206,20 @@ fun HistoryPointItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(3.dp)
+        elevation = CardDefaults.cardElevation(3.dp),
+        colors = CardDefaults.cardColors(containerColor = AppSurfaceSoft)
     ) {
         Row(
-            modifier = Modifier.padding(14.dp)
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Default.Stars, contentDescription = null)
+            Surface(
+                shape = CircleShape,
+                color = AppGreenLight,
+                modifier = Modifier.padding(2.dp)
+            ) {
+                Icon(Icons.Default.Stars, contentDescription = null, tint = AppGreen, modifier = Modifier.padding(6.dp))
+            }
 
             Spacer(modifier = Modifier.width(12.dp))
 

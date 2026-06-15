@@ -186,7 +186,7 @@ fun ProfileInfoCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(3.dp),
         colors = CardDefaults.cardColors(
             containerColor = AppSurfaceSoft
@@ -224,7 +224,7 @@ fun ProfileSmallInfo(
         Surface(
             modifier = Modifier.size(42.dp),
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.surfaceVariant
+            color = AppGreenLight
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(icon, contentDescription = null)
@@ -260,8 +260,11 @@ fun ProfileMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
-        shape = RoundedCornerShape(18.dp),
-        elevation = CardDefaults.cardElevation(2.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = AppSurfaceSoft
+        )
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -273,7 +276,7 @@ fun ProfileMenuItem(
                 color = if (danger) {
                     MaterialTheme.colorScheme.errorContainer
                 } else {
-                    MaterialTheme.colorScheme.surfaceVariant
+                    AppGreenLight
                 }
             ) {
                 Box(contentAlignment = Alignment.Center) {

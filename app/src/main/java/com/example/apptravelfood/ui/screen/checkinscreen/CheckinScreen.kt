@@ -1,5 +1,8 @@
 package com.example.apptravelfood.ui.screen.checkinscreen
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,8 +38,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import com.example.apptravelfood.core.untils.BiometricHelper
 import com.example.apptravelfood.ui.components.AppAccentButton
@@ -45,6 +56,7 @@ import com.example.apptravelfood.ui.components.AppGreenLight
 import com.example.apptravelfood.ui.components.AppGreenStrong
 import com.example.apptravelfood.ui.components.AppPageSurface
 import com.example.apptravelfood.ui.components.AppSmallTag
+import com.example.apptravelfood.ui.components.AppSurfaceSoft
 
 @Composable
 fun CheckinRoute(
@@ -55,9 +67,7 @@ fun CheckinRoute(
     val context = LocalContext.current
     val activity = context as FragmentActivity
 
-    var showPasswordDialog by remember {
-        mutableStateOf(false)
-    }
+    var showPasswordDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(userId) {
         viewModel.loadCheckinData(userId)
@@ -66,7 +76,6 @@ fun CheckinRoute(
     CheckinScreen(
         uiState = uiState,
         showPasswordDialog = showPasswordDialog,
-
         onCheckinClick = {
             if (BiometricHelper.canAuthenticate(activity)) {
                 BiometricHelper.showBiometricPrompt(
@@ -79,25 +88,17 @@ fun CheckinRoute(
                         )
                     },
                     onError = {
-                        viewModel.showError(
-                            "Xác thực sinh trắc học thất bại"
-                        )
+                        viewModel.showError("Xác thực sinh trắc học thất bại")
                     }
                 )
             } else {
                 showPasswordDialog = true
             }
         },
-
         onPasswordCheckClick = { password ->
             showPasswordDialog = false
-
-            viewModel.checkinWithPassword(
-                userId = userId,
-                password = password
-            )
+            viewModel.checkinWithPassword(userId = userId, password = password)
         },
-
         onDismissPasswordDialog = {
             showPasswordDialog = false
         }
@@ -112,19 +113,39 @@ fun CheckinScreen(
     onPasswordCheckClick: (String) -> Unit,
     onDismissPasswordDialog: () -> Unit
 ) {
-
     AppPageSurface {
+        // Branding Header
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Travel & Food",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    brush = Brush.linearGradient(
+                        colors = listOf(AppGreen, AppGreenStrong)
+                    )
+                )
+            )
+            Text(
+                text = "Check-in hàng ngày, nhận quà liền tay",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         Text(
             text = "Tích điểm nhận quà",
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = AppGreenStrong
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        TotalPointCard(
-            totalPoint = uiState.totalPoint
-        )
+        TotalPointCard(totalPoint = uiState.totalPoint)
 
         Spacer(modifier = Modifier.height(18.dp))
 
@@ -140,7 +161,7 @@ fun CheckinScreen(
             onClick = onCheckinClick,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
+                .height(52.dp),
             enabled = !uiState.hasCheckedToday && !uiState.isLoading
         )
 
@@ -151,101 +172,81 @@ fun CheckinScreen(
 
         uiState.error?.let {
             Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error
-            )
+            Text(text = it, color = MaterialTheme.colorScheme.error)
         }
+
         if (showPasswordDialog) {
-            var password by remember {
-                mutableStateOf("")
-            }
+            var password by remember { mutableStateOf("") }
 
             AlertDialog(
                 onDismissRequest = onDismissPasswordDialog,
-                title = {
-                    Text("Xác thực điểm danh")
-                },
+                title = { Text("Xác thực điểm danh") },
                 text = {
                     OutlinedTextField(
                         value = password,
-                        onValueChange = {
-                            password = it
-                        },
-                        label = {
-                            Text("Nhập mật khẩu tài khoản")
-                        },
+                        onValueChange = { password = it },
+                        label = { Text("Nhập mật khẩu tài khoản") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
                 confirmButton = {
                     Button(
-                        onClick = {
-                            onPasswordCheckClick(password)
-                        },
+                        onClick = { onPasswordCheckClick(password) },
                         enabled = password.isNotBlank()
-                    ) {
-                        Text("Xác nhận")
-                    }
+                    ) { Text("Xác nhận") }
                 },
                 dismissButton = {
-                    TextButton(
-                        onClick = onDismissPasswordDialog
-                    ) {
-                        Text("Hủy")
-                    }
+                    TextButton(onClick = onDismissPasswordDialog) { Text("Hủy") }
                 }
             )
         }
     }
 }
 
+// ── Total point card ──────────────────────────────────────────────────────────
 @Composable
-fun TotalPointCard(
-    totalPoint: Int
-) {
+fun TotalPointCard(totalPoint: Int) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = com.example.apptravelfood.ui.components.AppSurfaceSoft
-        )
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = AppSurfaceSoft)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(22.dp),
+                .padding(18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
-                modifier = Modifier.size(68.dp),
+                modifier = Modifier.size(56.dp),
                 shape = CircleShape,
-                color = AppGreenLight
+                color = AppGreenLight.copy(alpha = 0.35f)
             ) {
-                Box(
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Stars,
                         contentDescription = null,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier.size(30.dp),
+                        tint = AppGreen
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(18.dp))
+            Spacer(modifier = Modifier.width(16.dp))
 
             Column {
                 Text(
                     text = "Tổng điểm của bạn",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
                 )
-
                 Text(
                     text = "$totalPoint điểm",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
                     color = AppGreen
                 )
             }
@@ -253,6 +254,7 @@ fun TotalPointCard(
     }
 }
 
+// ── 7-day checkin card ────────────────────────────────────────────────────────
 @Composable
 fun BusTicketCheckinCard(
     checkedDays: List<Int>,
@@ -261,143 +263,145 @@ fun BusTicketCheckinCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = com.example.apptravelfood.ui.components.AppSurfaceSoft
-        )
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = AppSurfaceSoft)
     ) {
-        Column(
-            modifier = Modifier.padding(18.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Default.EmojiTransportation, contentDescription = null)
-
-                Spacer(modifier = Modifier.width(8.dp))
-
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.EmojiTransportation,
+                    contentDescription = null,
+                    tint = AppGreen,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = "Vé điểm danh 7 ngày",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = AppGreenStrong
                 )
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = "Điểm danh mỗi ngày để nhận điểm. Ô đã nhận sẽ bị gạch.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            Text(
-                text = "Mỗi ngày điểm danh nhận điểm. Ô đã nhận sẽ được đóng dấu.",
-                style = MaterialTheme.typography.bodySmall
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            // All 7 days in one row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    for (day in 1..4) {
-                        CheckinWindow(
-                            day = day,
-                            point = getPointByDay(day),
-                            checked = checkedDays.contains(day),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    for (day in 5..7) {
-                        CheckinWindow(
-                            day = day,
-                            point = getPointByDay(day),
-                            checked = checkedDays.contains(day),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    Box(modifier = Modifier.weight(1f))
+                for (day in 1..7) {
+                    CheckinCell(
+                        day = day,
+                        point = getPointByDay(day),
+                        checked = checkedDays.contains(day),
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            if (hasCheckedToday) {
-                Text(
-                    text = "Hôm nay bạn đã lên xe và nhận điểm 🎫",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
-                Text(
-                    text = "Hôm nay chưa điểm danh",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            Text(
+                text = if (hasCheckedToday) "✅ Hôm nay đã điểm danh, nhận điểm thành công!"
+                else "Hôm nay chưa điểm danh",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (hasCheckedToday) AppGreen else Color.Gray
+            )
         }
     }
 }
 
+// ── Single day cell ───────────────────────────────────────────────────────────
 @Composable
-fun CheckinWindow(
+fun CheckinCell(
     day: Int,
     point: Int,
     checked: Boolean,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier.height(92.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (checked) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
+    val bgColor = if (checked) Color(0xFFFFF0F0) else Color.White
+    val borderColor = if (checked) Color(0xFFFFCCCC) else AppGreenLight.copy(alpha = 0.4f)
+    val textColor = if (checked) Color(0xFFBB4444) else AppGreenStrong
+
+    Box(
+        modifier = modifier
+            .height(72.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(bgColor)
+            .border(1.dp, borderColor, RoundedCornerShape(10.dp)),
+        contentAlignment = Alignment.Center
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+        // Content
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(4.dp)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "Ngày $day",
-                    style = MaterialTheme.typography.labelMedium
+            Text(
+                text = "N$day",
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Medium,
+                color = textColor.copy(alpha = 0.7f),
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = "+$point",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = textColor,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = if (checked) "✓" else "…",
+                fontSize = 9.sp,
+                color = if (checked) Color(0xFFCC2222) else Color.LightGray,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // Red diagonal cross drawn on top when checked
+        if (checked) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val strokeWidth = 2.dp.toPx()
+                val color = Color(0xFFDD3333)
+                val pad = 8.dp.toPx()
+                drawLine(
+                    color = color,
+                    start = Offset(pad, pad),
+                    end = Offset(size.width - pad, size.height - pad),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Round
                 )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "+$point",
-                    style = MaterialTheme.typography.titleMedium
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = if (checked) "Đã nhận" else "Chờ",
-                    style = MaterialTheme.typography.labelSmall
+                drawLine(
+                    color = color,
+                    start = Offset(size.width - pad, pad),
+                    end = Offset(pad, size.height - pad),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Round
                 )
             }
         }
     }
 }
 
-fun getPointByDay(day: Int): Int {
-    return when (day) {
-        1 -> 5
-        2 -> 5
-        3 -> 10
-        4 -> 10
-        5 -> 15
-        6 -> 15
-        7 -> 30
-        else -> 0
-    }
+fun getPointByDay(day: Int): Int = when (day) {
+    1 -> 5
+    2 -> 5
+    3 -> 10
+    4 -> 10
+    5 -> 15
+    6 -> 15
+    7 -> 30
+    else -> 0
 }

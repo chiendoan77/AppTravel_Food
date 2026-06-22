@@ -76,14 +76,10 @@ class ProfileViewModel(
                     error = null,
                     success = null
                 )
-
-                // 1. Update Name
                 userRepository.updateName(userId, name)
 
-                // 2. Update Phone
                 userRepository.updatePhone(userId, phone)
 
-                // 3. Update Avatar if selected
                 if (avatarUri != null) {
                     val avatarUrl = supabaseStorageRepository.uploadAvatar(
                         context = context,
@@ -104,72 +100,6 @@ class ProfileViewModel(
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Cập nhật thất bại"
-                )
-            }
-        }
-    }
-
-    fun updateName(userId: Long, name: String) {
-        if (name.isBlank()) {
-            _uiState.value = _uiState.value.copy(error = "Họ tên không được để trống")
-            return
-        }
-        viewModelScope.launch {
-            try {
-                userRepository.updateName(userId, name)
-                backupUpdatedUser(userId)
-                loadUser(userId)
-                _uiState.value = _uiState.value.copy(success = "Cập nhật tên thành công")
-
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Không cập nhật được tên"
-                )
-            }
-        }
-    }
-
-    fun updatePassword(userId: Long, password: String) {
-        if (!ValidationUtils.isValidPassword(password)) {
-            _uiState.value = _uiState.value.copy(
-                error = "Mật khẩu phải dài ít nhất 5 ký tự và có 1 chữ viết hoa"
-            )
-            return
-        }
-        viewModelScope.launch {
-            try {
-                userRepository.updatePassword(userId, PasswordUtils.hash(password))
-                backupUpdatedUser(userId)
-                loadUser(userId)
-                _uiState.value = _uiState.value.copy(success = "Đổi mật khẩu thành công")
-
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Không đổi được mật khẩu"
-                )
-            }
-        }
-    }
-
-    fun updatePhone(userId: Long, phone: String) {
-        val state = _uiState.value
-
-        if (phone.isNotBlank() && !ValidationUtils.isValidPhone(phone)) {
-            _uiState.value = state.copy(
-                error = "Số điện thoại không đúng định dạng (10 số hoặc bắt đầu với +84)"
-            )
-            return
-        }
-        viewModelScope.launch {
-            try {
-                userRepository.updatePhone(userId, phone)
-                backupUpdatedUser(userId)
-                loadUser(userId)
-                _uiState.value = _uiState.value.copy(success = "Cập nhật số điện thoại thành công")
-
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = e.message ?: "Không cập nhật được số điện thoại"
                 )
             }
         }
@@ -208,48 +138,6 @@ class ProfileViewModel(
             } catch (_: Exception) {
                 // Room đã cập nhật thành công.
                 // Firebase lỗi thì không làm app crash.
-            }
-        }
-    }
-
-    fun updateAvatar(
-        context: Context,
-        userId: Long,
-        imageUri: Uri
-    ) {
-        viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = true,
-                    error = null
-                )
-
-                val avatarUrl =
-                    supabaseStorageRepository.uploadAvatar(
-                        context = context,
-                        userId = userId,
-                        imageUri = imageUri
-                    )
-                Log.d("SUPABASE_UPLOAD", "Start uri=$imageUri")
-                Log.d("SUPABASE_UPLOAD", "Uploaded avatar url=$avatarUrl")
-
-                userRepository.updateAvatar(userId, avatarUrl)
-                _uiState.value = _uiState.value.copy(
-                    user = _uiState.value.user?.copy(
-                        avatarUrl = avatarUrl
-                    ),
-                    isLoading = false,
-                    success = "Cập nhật ảnh thành công"
-                )
-
-                backupUpdatedUser(userId)
-                Log.d("SUPABASE_UPLOAD", "Avatar updated successfully")
-                loadUser(userId)
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message ?: "Không cập nhật được ảnh"
-                )
             }
         }
     }

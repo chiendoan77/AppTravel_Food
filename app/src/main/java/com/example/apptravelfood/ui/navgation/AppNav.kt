@@ -140,12 +140,6 @@ fun AppNav(
     }
 
     val showBottomBar = currentRoute != AppRoute.AUTH
-
-
-
-
-
-
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
